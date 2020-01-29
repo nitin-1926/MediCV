@@ -17,8 +17,6 @@ app.use(cookeParser());
 app.use(session({ secret: 'abcChitkara', resave: false, saveUninitialized: true, }));
 
 
-
-
 var mongoose = require('mongoose');
 var mongoDB = 'mongodb://localhost/medicv';
 mongoose.set('useFindAndModify', false);
@@ -43,7 +41,6 @@ var userSchema = new mongoose.Schema({
   subscription: String         //  free  premium
 });
 
-
 var users = mongoose.model('users',userSchema);
 
 app.post('/login',(req,res)=>{
@@ -61,15 +58,12 @@ app.post('/login',(req,res)=>{
       res.send({valid: 0});
     }
   })
-
 });
 
 
 app.get('/home',(req,res)=>{
   res.render('home');
 });
-
-
 
 app.listen(2000, ()=>{
   console.log("Server Started");
