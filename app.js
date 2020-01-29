@@ -34,6 +34,11 @@ mongoose.connection.on('connected', (err) => {
 var userSchema = new mongoose.Schema({
   email: String,
   password: String,
+  name: String,
+  dob: String,
+  city: String,
+  age: String,
+  phoneNo: String,
   dateCreated: String,
   profilePic: String,
   status: String,        // verified  pending
