@@ -5,6 +5,8 @@ const bodyParser = require('body-parser');
 var session = require('express-session');
 const cookeParser = require('cookie-parser');
 
+const PORT=2000;
+
 
 app.use(express.static(path.join(__dirname, '/public')));
 app.set('views',path.join(__dirname, 'views'));
@@ -65,6 +67,6 @@ app.get('/home',(req,res)=>{
   res.render('home');
 });
 
-app.listen(2000, ()=>{
-  console.log("Server Started");
+app.listen(PORT, ()=>{
+  console.log("Server Started on "+ PORT);
 });
