@@ -50,6 +50,14 @@ var userSchema = new mongoose.Schema({
 
 var users = mongoose.model('users',userSchema);
 
+/*/////////////////////////////////////////////////
+
+
+Make Middle ware to check logged in
+
+
+/////////////////////////////////////////////////*/
+
 app.post('/login',(req,res)=>{
   var email = req.body.email.toLowerCase();
   var password = req.body.password;
@@ -66,6 +74,16 @@ app.post('/login',(req,res)=>{
     }
   })
 });
+
+//////////  Register User ////////////
+
+app.post('/register',(req,res)=>{
+  console.log(req.body);
+  /////  Add to DB and session here /////
+  res.render('home');
+});
+
+
 
 
 app.get('/home',(req,res)=>{

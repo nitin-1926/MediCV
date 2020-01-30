@@ -29,16 +29,16 @@
 	<!--===============================================================================================-->
 </head>
 <script>
-	function hide(){
+	function showSignIn(){
 		document.getElementById("regForm").style.display = "none";
 		document.getElementById("signForm").style.display = "block";
 	}
-	function show(){
+	function showReg(){
 		document.getElementById("regForm").style.display = "block";
 		document.getElementById("signForm").style.display = "none";
 	}
 </script>
-<body onload="hide()" style="background-image: url('./login/images/bg.jpg'); background-repeat: no-repeat;background-size: 100% 100%;">
+<body style="background-image: url('./login/images/bg.jpg'); background-repeat: no-repeat;background-size: 100% 100%;">
 
 
 	<div class="container-login100">
@@ -48,13 +48,13 @@
 					Welcome To<br>MediCV
 				</span>
 
-				<div class="wrap-input100 validate-input m-b-20">
-					<input id='email' class="input100" type="text" name="username" placeholder="Email">
+				<div class="wrap-input100  m-b-20">
+					<input id='email' class="input100" type="text" name="username" placeholder="Email" required>
 					<span class="focus-input100"></span>
 				</div>
 
-				<div class="wrap-input100 validate-input m-b-25">
-					<input class="input100" id='password' type="password" name="pass" placeholder="Password">
+				<div class="wrap-input100  m-b-25">
+					<input class="input100" id='password' type="password" name="pass" placeholder="Password" required>
 					<span class="focus-input100"></span>
 				</div>
 
@@ -66,10 +66,15 @@
 					</button>
 				</div>
 
+				<div class="wrap-input100 validate-input m-b-25">
+					<center><span id='invalidcred' style="display: none;" class="focus-input100">Email or Password Incorrect</span>
+					</center>
+				</div>
+
 				<br>
 
 				<div class="text-center">
-					<button onclick="show()" class="txt2 hov1">
+					<button onclick="showReg()" class="txt2 hov1">
 						New User? Sign Up
 					</a>
 				</div>
@@ -77,40 +82,55 @@
 
 			<!--Registeration Form-->
 
-			<form class="login100-form validate-form" id="regForm">
+			<form class="login100-form validate-form" id="regForm" style="display: none;" method="POST" action="/register"> 
 				<span class="login100-form-title p-b-37" style="margin-top: -10%;">
 					MediCV Welcomes<br>YOU!!
 				</span>
 
-				<div class="wrap-input100 validate-input m-b-20">
-					<input id='email' class="input100" type="text" name="username" placeholder="Email">
+				<div class="wrap-input100  m-b-20">
+					<input id='email' class="input100" type="text" name="email" placeholder="Email">
 					<span class="focus-input100"></span>
 				</div>
 
-				<div class="wrap-input100 validate-input m-b-20">
+				<div class="wrap-input100  m-b-20">
 					<input id='name' class="input100" type="text" name="name" placeholder="Full Name">
 					<span class="focus-input100"></span>
 				</div>
 
-				<div class="wrap-input100 validate-input m-b-25">
-					<input class="input100" id='password' type="password" name="pass" placeholder="Password">
+				<div class="wrap-input100  m-b-25">
+					<input class="input100" id='pass' type="password" name="password" placeholder="Password">
 					<span class="focus-input100"></span>
 				</div>
 
 				<br>
 
 				<div class="container-login100-form-btn">
-					<button id='register' class="login100-form-btn">
+					<button id='btnRegister' type="submit" class="login100-form-btn">
 						Register
 					</button>
 				</div>
+
+				<br>
+				<div class="text-center">
+					<button onclick="showSignIn()" class="txt2 hov1">
+						Sign In instead?
+						</a>
+				</div>
+
 
 			</form>
 
 		</div>
 	</div>
 
-
+	<script>
+		
+		var btn=document.getElementById('btnRegister');
+		btn.addEventListener('click', (event)=>{
+			
+		})
+	
+	</script>
 
 
 	<div id="dropDownSelect1"></div>
@@ -136,11 +156,14 @@
 
 		  $(document).ready(()=>{
 				document.getElementById('signin').addEventListener('click',(event)=>{
-					event.preventDefault();
-					document.getElementById('invalidcred').setAttribute('style','display: none;');
-					var obj={};
+					var obj = {};
 					obj.email = document.getElementById('email').value;
 					obj.password = document.getElementById('password').value;
+					if (obj.email == "" || obj.password == "") {
+						return;
+					}
+					event.preventDefault();
+					document.getElementById('invalidcred').setAttribute('style','display: none;');
 					
 					var xhttp = new XMLHttpRequest;
 					xhttp.onreadystatechange = function(){
@@ -161,7 +184,7 @@
 					xhttp.send(JSON.stringify(obj));
 				});
 			});
-			</script>
+	</script>
 		
 
 </body>
