@@ -18,7 +18,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookeParser());
 app.use(session({ secret: 'abcChitkara', resave: false, saveUninitialized: true, }));
 
-
+/*
 var mongoose = require('mongoose');
 var mongoDB = 'mongodb://localhost/medicv';
 mongoose.set('useFindAndModify', false);
@@ -50,6 +50,37 @@ var userSchema = new mongoose.Schema({
 
 var users = mongoose.model('users',userSchema);
 
+*/
+
+
+var mysql = require('mysql');
+var connection = mysql.createConnection({
+  host: 'localhost',
+  user: 'Prabhat',
+  password: 'secret',
+  database: 'medicv'
+});
+
+connection.connect(function(err){
+  if(err){
+    console.log("DB Connection Error");
+    return;
+  }
+  console.log("DB Connected");
+});
+
+
+app.use('/user/:id',(req,res,next)=>{
+  if(req.session.isLogin){
+    next();
+  }
+  else{
+    res.redirect('/');      ///  change this to /login
+  }
+})
+
+
+
 /*/////////////////////////////////////////////////
 
 
@@ -62,28 +93,38 @@ app.post('/login',(req,res)=>{
   var email = req.body.email.toLowerCase();
   var password = req.body.password;
 
-  users.findOne({email: email, password: password},(err,data)=>{
+  connection.query('select * from `user` where `email` = ? and `password` = ?',[email,password],(err,data)=>{
     if(err){
+      console.log(err);
       throw err;
     }
-    if(data!=null){
+    if(data.length){
+      req.session.data=data[0];
+      req.session.isLogin = 1;
       res.send({valid: 1});
+      return;
     }
-    else{
-      res.send({valid: 0});
-    }
-  })
+    res.send({valid: 0});
+      
+
+  });
+
+
+
 });
 
 //////////  Register User ////////////
 
 app.post('/register',(req,res)=>{
   console.log(req.body);
+  
   /////  Add to DB and session here /////
-  res.render('home');
+  //res.render('home');
 });
 
-
+app.get('/user/',(req,res)=>{
+  res.render('home');
+})
 
 
 app.get('/home',(req,res)=>{
