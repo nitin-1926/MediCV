@@ -66,6 +66,8 @@
 					</button>
 				</div>
 
+				<br>
+
 				<div class="wrap-input100 validate-input m-b-25">
 					<center><span id='invalidcred' style="display: none;" class="focus-input100">Email or Password Incorrect</span>
 					</center>
@@ -171,7 +173,7 @@
 							if(xhttp.status == 200){
 								var valid = JSON.parse(this.responseText);
 								if(valid.valid==1){
-									location.assign('/home');
+									location.assign('/user/');
 								}
 								else{
 									document.getElementById('invalidcred').setAttribute('style','display: block; color: red;');
