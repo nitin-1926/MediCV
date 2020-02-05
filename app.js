@@ -18,40 +18,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookeParser());
 app.use(session({ secret: 'abcChitkara', resave: false, saveUninitialized: true, }));
 
-/*
-var mongoose = require('mongoose');
-var mongoDB = 'mongodb://localhost/medicv';
-mongoose.set('useFindAndModify', false);
-mongoose.set('useNewUrlParser', true);
-mongoose.set('useUnifiedTopology', true);
-
-mongoose.connect(mongoDB);
-mongoose.connection.on('error', (err) => {
-  console.log('DB connection Error');
-});
-mongoose.connection.on('connected', (err) => {
-  console.log('DB connected');
-});
-
-var userSchema = new mongoose.Schema({
-  email: String,
-  password: String,
-  name: String,
-  dob: String,
-  city: String,
-  age: String,
-  phoneNo: String,
-  dateCreated: String,
-  profilePic: String,
-  status: String,        // verified  pending
-  isActive: Boolean,        //  account deleted?
-  subscription: String         //  free  premium
-});
-
-var users = mongoose.model('users',userSchema);
-
-*/
-
 
 var mysql = require('mysql');
 var connection = mysql.createConnection({
@@ -70,24 +36,15 @@ connection.connect(function(err){
 });
 
 
-app.use('/user/:id',(req,res,next)=>{
+app.use('/user/',(req,res,next)=>{
   if(req.session.isLogin){
     next();
   }
   else{
     res.redirect('/');      ///  change this to /login
   }
-})
+});
 
-
-
-/*/////////////////////////////////////////////////
-
-
-Make Middle ware to check logged in
-
-
-/////////////////////////////////////////////////*/
 
 app.post('/login',(req,res)=>{
   var email = req.body.email.toLowerCase();
@@ -116,15 +73,46 @@ app.post('/login',(req,res)=>{
 //////////  Register User ////////////
 
 app.post('/register',(req,res)=>{
-  console.log(req.body);
-  
+  // console.log(req.body);
+  var date = new Date();
+
+  connection.query('select * from `user` where `email` = ?',[req.body.email],(err,data)=>{
+    if(err){
+      console.log(err);
+      throw err;
+    }
+    if(data[0]){
+      console.log("Email already exists");
+    }
+    else{
+      var date = getDate();
+      connection.query('insert into `user` (`email`, `name`, `password`, `dateCreated`) values (?, ?, ?, ?);',[req.body.email, req.body.name, req.body.password, date],(err,data)=>{
+        if(err){
+          console.log(err);
+          throw err;
+        }
+        console.log("Data Inserted Succesfully");
+        // console.log(data);
+        req.session.isLogin = 1;
+        req.session.name = req.body.email;
+        req.session.isActive = 1;
+        req.session.name = req.body.name;
+        req.session.id = data.insertId;
+        req.session.dateCreated = date;
+        res.redirect(`/user/`);
+    });
+  }
+});
+
+
   /////  Add to DB and session here /////
   //res.render('home');
 });
 
 app.get('/user/',(req,res)=>{
+  
   res.render('home');
-})
+});
 
 
 app.get('/home',(req,res)=>{
@@ -134,3 +122,14 @@ app.get('/home',(req,res)=>{
 app.listen(PORT, ()=>{
   console.log("Server Started on "+ PORT);
 });
+
+
+
+
+function getDate() {
+  var x=new Date().getDate().toString();
+  var y=new Date().getMonth().toString();
+  var z=new Date().getFullYear().toString();
+  var r = z+"-"+y+"-"+x;
+  return r;
+}
