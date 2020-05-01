@@ -1,0 +1,54 @@
+*{
+  margin: 0;
+  padding: 0;
+}
+
+
+body {
+  position: relative;
+  background-image: url("/images/bg.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  height: 100%;
+}
+
+
+.form-signin {
+  padding: 0px 15px 15px;
+}
+
+.tabs {
+  padding: 10px;
+}
+
+
+.login-form {
+  width: 300px;
+  position: absolute;
+  background-color: #eee;
+  border-radius: 5px;
+  margin: auto;
+  right: 100px;
+  top: 200px;
+}
+
+.login-form button {
+  margin-bottom: 20px;
+}
+
+.form-signin .confirm-pass {
+  margin-bottom: 20px;
+}
+
+.form-signin input{
+  margin: 5px auto;
+}
+
+.checkbox {
+  margin-top: 10px;
+} 
+
+.err-registered {
+  text-align: center;
+  color: rgb(211, 98, 98);
+}
