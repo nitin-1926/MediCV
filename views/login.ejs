@@ -6,26 +6,30 @@
 
 
 <div class="login-form ">
-	<ul class="nav nav-pills nav-justified tabs">
-		<li class="tab" ><a data-toggle="pill" href="#login">Login</a></li>
-		<li class="tab active"> <a data-toggle="pill" href="#register" >Register</a> </li>
+
+	<ul class="nav nav-pills nav-fill tabs mb-3" id="pills-tab" role="tablist">
+		<li class="nav-item">
+			<a class="nav-link active" id="login-tab" data-toggle="pill" href="#login" role="tab" aria-controls="login" aria-selected="true">Login</a>
+		</li>
+		<li class="nav-item">
+			<a class="nav-link " id="register-tab" data-toggle="pill" href="#register" role="tab" aria-controls="register" aria-selected="false">Register</a>
+		</li>
 	</ul>
 
-	<div class="tab-content">
-		<div id="login" class="tab-pane fade in">
+	<div class="tab-content" id='pills-tabContent'>
+		<div id="login" class="tab-pane fade show active" role="tabpanel" aria-labelledby="login-tab">
 			<form class=" form-signin">
 				<h1 class="h3 mb-3 font-weight-normal">Sign in</h1>
 				<label for="inputEmail" class="sr-only">Email address</label>
 				<input type="email" name="username" id="inputEmail" class="form-control" placeholder="Email address" required="" autofocus="">
 				<label for="inputPassword" class="sr-only">Password</label>
 				<input type="password" name="password" id="inputPassword" class="form-control confirm-pass" placeholder="Password" required="">
-				<button class="btn btn-lg btn-primary btn-block" onclick="handleClick(event)" name="btnLogin" type="submit">Sign In</button>
-				<div id='errLogin' style="display: none;" class="err-registered">Invalid Credentials!</div>
-				<p class="mt-5 mb-3 text-muted"></p>
+				<button class="btn btn-lg btn-primary btn-block" onclick="handleLogin(event)" name="btnLogin" type="submit">Sign In</button>
+				<div id='errLogin' style="display: none;" class="err err-registered">Invalid Credentials!</div>
 			</form>
-			</div>
+		</div>
 		
-			<div id="register" class="tab-pane fade in active" >
+		<div id="register" class="tab-pane fade show " role="tabpanel" aria-labelledby="register-tab">
 			<form action="/register" method="POST" class="form-signin">
 				<h1 class="h3 mb-3 font-weight-normal">Sign Up</h1>
 				<label for="inputEmail" class="sr-only">Email address</label>
@@ -35,9 +39,9 @@
 				<label for="inputConfirmPassword" class="sr-only">Confirm Password</label>
 				<input type="password" id="inputConfirmPassword" class="form-control confirm-pass" placeholder="Confirm Password" required="">
 				
-				<button class="btn btn-lg btn-primary btn-block" onclick="handleClick(event)" name="btnRegister" type="submit">Sign Up</button>
-				<div id='errDiffPass' style="display: none;" class="err-registered">Password DO NOT MATCH</div>
-				<div id='errRegd' style="display: none;" class="err-registered">User Already Registered</div>
+				<button class="btn btn-lg btn-primary btn-block" onclick="handleRegister(event)" name="btnRegister" type="submit">Sign Up</button>
+				<div id='errDiffPass' style="display: none;" class="err err-registered">Password DO NOT MATCH</div>
+				<div id='errRegd' style="display: none;" class="err err-registered">User Already Registered</div>
 
 			</form>
 			</div>
@@ -50,10 +54,10 @@
 
 
 <script>
-	function handleClick(event){
+	function handleLogin(event){
 		event.preventDefault();
-			
-		if(event.target.name == "btnLogin"){
+		$("#errLogin").css("display", "none");
+		
 			const user = {
 		  	username: $("#inputEmail").val(),
 		  	password: $("#inputPassword").val()
@@ -71,16 +75,22 @@
 			xhttp.open("POST", "/login");
 			xhttp.setRequestHeader("Content-type", "application/json");
     	xhttp.send(JSON.stringify(user));
-		}
+		
+	}
 
-		else {
+
+
+		function handleRegister(event) {
+			event.preventDefault();
+			$('#errDiffPass').css("display", "none");
+			$("#errRegd").css("display", "none");
 			const user = {
 		  	username: $("#inputRegEmail").val(),
 		  	password: $("#inputRegPassword").val()
 			}
 			if($('#inputRegPassword').val() == $('#inputConfirmPassword').val()){
-				var xhttp = new XMLHttpRequest();
-    		xhttp.onreadystatechange = function() {
+				var xhttp1 = new XMLHttpRequest();
+    		xhttp1.onreadystatechange = function() {
         	if (this.readyState == 4) {
 						if(this.status == 401){
 							$("#errRegd").css("display", "block");
@@ -89,15 +99,15 @@
 						}
        		}
     		};
-				xhttp.open("POST", "/register");
-				xhttp.setRequestHeader("Content-type", "application/json");
-    		xhttp.send(JSON.stringify(user));
+				xhttp1.open("POST", "/register");
+				xhttp1.setRequestHeader("Content-type", "application/json");
+    		xhttp1.send(JSON.stringify(user));
 			} else {
 				$('#errDiffPass').css("display", "block");
 				$('#inputRegPassword').focus();
 			}			
 		}
-	}
+	
 
 
 </script>

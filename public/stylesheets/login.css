@@ -14,7 +14,7 @@ body {
 
 
 .form-signin {
-  padding: 0px 15px 15px;
+  padding: 0px 15px;
 }
 
 .tabs {
@@ -27,13 +27,14 @@ body {
   position: absolute;
   background-color: #eee;
   border-radius: 5px;
-  margin: auto;
+  padding-top: 5px;
   right: 100px;
   top: 200px;
 }
 
-.login-form button {
-  margin-bottom: 20px;
+
+.login-form button{
+  margin-bottom: 10px;
 }
 
 .form-signin .confirm-pass {
@@ -50,5 +51,7 @@ body {
 
 .err-registered {
   text-align: center;
+  margin: 5px auto;
   color: rgb(211, 98, 98);
 }
+

@@ -61,7 +61,8 @@ passport.deserializeUser(function(id, done) {
 });
 
 function authenticateUser(req, res, next){
-  if(req.path == '/' || req.path=='/login' || req.path=='/register'){
+
+  if(req.path=='/' || req.path=='/login' || req.path=='/register'){
     return next();
   } else {
     if(req.isAuthenticated()){
@@ -77,6 +78,9 @@ app.all("*", authenticateUser);
 
 
 app.get('/', (req, res)=>{
+  if(req.isAuthenticated()){
+    return res.redirect('/home');
+  }
   res.render('login');
 })
 
@@ -90,7 +94,7 @@ app.post("/login", (req, res) => {
       console.log(err);
     } else {
       passport.authenticate("local")(req, res, function(){
-        res.redirect('/home')
+        res.sendStatus(200);
       });
     }
   });
@@ -110,7 +114,7 @@ app.post("/register", (req, res) => {
       }
     } else {
       passport.authenticate("local")(req, res, function(){
-        res.redirect('/home');
+        res.sendStatus(200);
       });
     }
 
@@ -120,9 +124,7 @@ app.post("/register", (req, res) => {
 
 
 app.get("/home", (req, res) => {
-  res.send("HOME");
-  
-  // res.render("home");
+  res.render("home");
 });
 
 app.listen(PORT, () => {
