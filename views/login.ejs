@@ -83,11 +83,12 @@
 			var xhttp1 = new XMLHttpRequest();
 		xhttp1.onreadystatechange = function() {
 		if (this.readyState == 4) {
-					if(this.status == 401){
-						$("#errRegd").css("display", "block");
-					} else if(this.status == 200){
-						window.location.href = "/home";
-					}
+			if(this.status == 401){
+				$("#errRegd").css("display", "block");
+			} 
+			else if(this.status == 200){
+				window.location.href = "/home";
+			}
 		}
 		};
 			xhttp1.open("POST", "/register");
