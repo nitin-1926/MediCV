@@ -3,8 +3,6 @@
 
 <link rel="stylesheet" href="stylesheets/login.css">
 
-
-
 <div class="login-form ">
 
 	<ul class="nav nav-pills nav-fill tabs mb-3" id="pills-tab" role="tablist">
@@ -44,14 +42,9 @@
 				<div id='errRegd' style="display: none;" class="err err-registered">User Already Registered</div>
 
 			</form>
-			</div>
-			
-
+		</div>
 	</div>
-	
-
 </div>
-
 
 <script>
 	function handleLogin(event){
@@ -78,40 +71,32 @@
 		
 	}
 
-
-
-		function handleRegister(event) {
-			event.preventDefault();
-			$('#errDiffPass').css("display", "none");
-			$("#errRegd").css("display", "none");
-			const user = {
-		  	username: $("#inputRegEmail").val(),
-		  	password: $("#inputRegPassword").val()
-			}
-			if($('#inputRegPassword').val() == $('#inputConfirmPassword').val()){
-				var xhttp1 = new XMLHttpRequest();
-    		xhttp1.onreadystatechange = function() {
-        	if (this.readyState == 4) {
-						if(this.status == 401){
-							$("#errRegd").css("display", "block");
-						} else if(this.status == 200){
-							window.location.href = "/home";
-						}
-       		}
-    		};
-				xhttp1.open("POST", "/register");
-				xhttp1.setRequestHeader("Content-type", "application/json");
-    		xhttp1.send(JSON.stringify(user));
-			} else {
-				$('#errDiffPass').css("display", "block");
-				$('#inputRegPassword').focus();
-			}			
+	function handleRegister(event) {
+		event.preventDefault();
+		$('#errDiffPass').css("display", "none");
+		$("#errRegd").css("display", "none");
+		const user = {
+		username: $("#inputRegEmail").val(),
+		password: $("#inputRegPassword").val()
 		}
-	
-
-
+		if($('#inputRegPassword').val() == $('#inputConfirmPassword').val()){
+			var xhttp1 = new XMLHttpRequest();
+		xhttp1.onreadystatechange = function() {
+		if (this.readyState == 4) {
+					if(this.status == 401){
+						$("#errRegd").css("display", "block");
+					} else if(this.status == 200){
+						window.location.href = "/home";
+					}
+		}
+		};
+			xhttp1.open("POST", "/register");
+			xhttp1.setRequestHeader("Content-type", "application/json");
+		xhttp1.send(JSON.stringify(user));
+		} else {
+			$('#errDiffPass').css("display", "block");
+			$('#inputRegPassword').focus();
+		}			
+	}
 </script>
-
-
-		
 <%- include('partials/footer') %> 
