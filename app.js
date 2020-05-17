@@ -82,7 +82,7 @@ app.get('/', (req, res)=>{
     return res.redirect('/home');
   }
   res.render('login');
-})
+});
 
 app.post("/login", (req, res) => {
   var user = new User({
