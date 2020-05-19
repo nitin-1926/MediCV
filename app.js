@@ -84,7 +84,7 @@ function authenticateUser(req, res, next){
 app.all("*", authenticateUser);
 
 
-app.get('/', (req, res)=>{
+app.get('/login', (req, res)=>{
   if(req.isAuthenticated()){
     return res.redirect('/home');
   }
