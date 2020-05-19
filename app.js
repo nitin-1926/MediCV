@@ -62,7 +62,7 @@ passport.deserializeUser(function(id, done) {
 
 function authenticateUser(req, res, next){
 
-  if(req.path=='/' || req.path=='/login' || req.path=='/register'){
+  if(req.path=='/login' || req.path=='/register'){
     return next();
   } else {
     if(req.isAuthenticated()){
