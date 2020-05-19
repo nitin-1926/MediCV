@@ -7,6 +7,7 @@ var session = require("express-session");
 const passport = require("passport");
 const passportLocalMongoose = require('passport-local-mongoose');
 const findOrCreate = require('mongoose-findorcreate');
+const fs = require('fs');
 
 const PORT = 3000;
 
@@ -48,9 +49,12 @@ userSchema.plugin(passportLocalMongoose);
 
 const User = mongoose.model("users", userSchema);
 
+var pwd = '';
+
 passport.use(User.createStrategy());
 
 passport.serializeUser(function(user, done) {
+  //  currentUser = user;
   done(null, user.id);
 });
 
@@ -61,11 +65,12 @@ passport.deserializeUser(function(id, done) {
 });
 
 function authenticateUser(req, res, next){
-
-  if(req.path=='/login' || req.path=='/register'){
+  
+  if(req.path==='/' || req.path=='/login' || req.path=='/register'){
     return next();
   } else {
     if(req.isAuthenticated()){
+      currentUser = req.user;
       return next();
     } else {
       res.redirect('/');
@@ -73,11 +78,13 @@ function authenticateUser(req, res, next){
   }
 }
 
+
+
 //  Middleware  //
 app.all("*", authenticateUser);
 
 
-app.get('/', (req, res)=>{
+app.get('/login', (req, res)=>{
   if(req.isAuthenticated()){
     return res.redirect('/home');
   }
@@ -94,8 +101,10 @@ app.post("/login", (req, res) => {
       console.log(err);
     } else {
       passport.authenticate("local")(req, res, function(){
+        createUserFolder(req.user.id);
         res.sendStatus(200);
       });
+      
     }
   });
   
@@ -122,6 +131,20 @@ app.post("/register", (req, res) => {
   
 });
 
+//  Create User Folder if does not exists...
+function createUserFolder(id){
+  var dir = __dirname + '/public/uploads/' + id;
+  if (!fs.existsSync(dir)){
+    fs.mkdirSync(dir);
+  }
+  pwd = '/uploads/' + id;  //  set pwd to serve static files
+  
+}
+
+app.get('/logout', (req, res)=>{
+  req.logOut();
+  res.redirect('/');
+})
 
 app.get("/home", (req, res) => {
   res.render("home");

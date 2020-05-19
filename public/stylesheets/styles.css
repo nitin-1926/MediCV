@@ -9,6 +9,8 @@ body {
 
 .nav-header {
     height: 70px;
+    position: sticky;
+    top: 0;
     background-color: rgb(255, 255, 255);
 }
 
