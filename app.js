@@ -73,7 +73,7 @@ function authenticateUser(req, res, next){
       currentUser = req.user;
       return next();
     } else {
-      res.redirect('/');
+      res.redirect('/login');
     }
   }
 }
@@ -81,15 +81,22 @@ function authenticateUser(req, res, next){
 
 
 //  Middleware  //
-app.all("*", authenticateUser);
+// app.all("*", authenticateUser);
 
 
 app.get('/login', (req, res)=>{
   if(req.isAuthenticated()){
     return res.redirect('/home');
   }
-  res.render('login');
+  res.render('login', {reg: false});
 });
+
+app.get('/register', (req,res)=>{
+  if(req.isAuthenticated()){
+    return res.redirect('/home');
+  }
+  res.render('login', {reg: true});
+})
 
 app.post("/login", (req, res) => {
   var user = new User({
