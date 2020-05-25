@@ -6,7 +6,9 @@ const bodyParser = require("body-parser");
 var session = require("express-session");
 const passport = require("passport");
 const passportLocalMongoose = require('passport-local-mongoose');
-const findOrCreate = require('mongoose-findorcreate');
+const multer = require('multer');
+const https = require('https');
+// const findOrCreate = require('mongoose-findorcreate');
 const fs = require('fs');
 
 const PORT = 3000;
@@ -37,12 +39,19 @@ app.use(passport.session());
 const userSchema = new mongoose.Schema({
   name: String,
   email: String,
-  uploads: [ {type: String} ],
+  uploads: [ {folderName: String, contents: [String]} ],
   password: String,
   verified: Boolean,
-  dateCreated: Date
+  dateCreated: Date,
+
 
 });
+
+// const uploadSchema = new mongoose.Schema({
+//   fileName: String,
+//   folder: {type: mongoose.Types.ObjectId, ref: User}
+// });
+// const Upload = mongoose.model('uploads', uploadSchema);
 
 userSchema.plugin(passportLocalMongoose);
 // userSchema.plugin(findOrCreate);
@@ -66,7 +75,7 @@ passport.deserializeUser(function(id, done) {
 
 function authenticateUser(req, res, next){
   
-  if(req.path==='/' || req.path=='/login' || req.path=='/register'){
+  if(req.path==='/' || req.path=='/login' || req.path=='/login/' || req.path=='/register'){
     return next();
   } else {
     if(req.isAuthenticated()){
@@ -81,8 +90,11 @@ function authenticateUser(req, res, next){
 
 
 //  Middleware  //
-// app.all("*", authenticateUser);
+app.all("*", authenticateUser);
 
+app.get('/', (req, res)=>{
+  res.render('landing');
+})
 
 app.get('/login', (req, res)=>{
   if(req.isAuthenticated()){
@@ -96,7 +108,7 @@ app.get('/register', (req,res)=>{
     return res.redirect('/home');
   }
   res.render('login', {reg: true});
-})
+});
 
 app.post("/login", (req, res) => {
   var user = new User({
@@ -109,6 +121,7 @@ app.post("/login", (req, res) => {
     } else {
       passport.authenticate("local")(req, res, function(){
         createUserFolder(req.user.id);
+        pwd = `/uploads/${req.user.id}/`;
         res.sendStatus(200);
       });
       
@@ -130,6 +143,8 @@ app.post("/register", (req, res) => {
       }
     } else {
       passport.authenticate("local")(req, res, function(){
+        createUserFolder(req.user.id);
+        pwd = `/uploads/${req.user.id}/`;
         res.sendStatus(200);
       });
     }
@@ -137,6 +152,70 @@ app.post("/register", (req, res) => {
   });
   
 });
+
+app.get("/home", (req, res) => {
+  User.findById(req.user.id, (err, data)=>{
+    if(err){
+      console.log(err);
+    } else {
+      res.render("home", {data: data.uploads});
+    }
+  })
+});
+
+app.post('/home/:folderName', (req, res)=>{
+  console.log(req.path);
+  
+  User.findById(req.user.id, (err, data)=>{
+    if(err){
+      console.log(err);
+    } else {
+      const folder = data.uploads.filter(folder=> {
+        return folder.folderName == req.params.folderName;
+      })
+      if(folder.length){
+        pwd = `/uploads/${req.user.id}/${req.params.folderName}/`;
+        return res.send(JSON.stringify(folder[0].contents));
+      }
+      else res.send("No Folder");
+    }
+  })
+});
+
+var multerConf = {
+  storage: multer.diskStorage({
+    destination: function(req, file, next){      
+      next(null, __dirname + `/public${pwd}`);
+    },
+    filename: function(req, file, next){
+      const ext = file.mimetype.split('/')[1];
+      next(null, file.fieldname + Date.now() + '.' + ext);
+    }
+  }),
+  fileFilter: function(req, file, next){
+    if(!file){
+      next();
+    } else {
+      const image = file.mimetype.startsWith('image');
+      if(image){
+        next(null, true);
+      } else {
+        next({message: 'File type not Supported'}, false);
+      }
+    }
+  }
+};
+
+
+app.post('/uploadfile', multer(multerConf).single('photo'), (req, res)=>{ 
+
+  //store in DB
+
+
+  //send response
+  
+
+})
 
 //  Create User Folder if does not exists...
 function createUserFolder(id){
@@ -148,13 +227,30 @@ function createUserFolder(id){
   
 }
 
+app.post('/createfolder', (req, res)=>{
+  var dir = __dirname + '/public/uploads/' + req.user.id + '/' + req.body.folderName;
+  if (!fs.existsSync(dir)){
+    try {
+      fs.mkdirSync(dir);
+    } catch (error) {
+      console.log(error);
+      return res.sendStatus(507);
+    }
+    User.findOneAndUpdate({ _id:req.user.id }, 
+      {$push: {uploads: {folderName: req.body.folderName, contents: []}}}, (err)=>{
+        if(err){
+          console.log(err);
+        }
+      });
+    res.sendStatus(200);
+  } else {
+    return res.sendStatus(300);
+  }
+});
+
 app.get('/logout', (req, res)=>{
   req.logOut();
   res.redirect('/');
-})
-
-app.get("/home", (req, res) => {
-  res.render("home");
 });
 
 app.listen(PORT, () => {

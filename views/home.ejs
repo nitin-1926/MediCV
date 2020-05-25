@@ -2,6 +2,7 @@
 <%- include('partials/navbar') %> 
 
 <link rel="stylesheet" href="/stylesheets/styles.css">
+<link rel="stylesheet" href="/stylesheets/home.css">
 <div class="wrapper">
 	<div class="container">
 		<br>
@@ -9,6 +10,14 @@
 			<button id='btnModal' type="button" class="btn btn-primary" data-toggle="modal" data-target="#newfolder-modal">
 				Create New Folder
 			</button>
+			
+
+			<form id="form" action="/uploadfile" method="post" enctype="multipart/form-data">
+				<input type="file" id='inputUploadPic' name="photo" />
+				<input type="text" name='fileName'>
+				<input hidden name='foldername' type="text" id='inputFolderName'>
+				<input type="button" onclick="submitForm()" value="Upload">
+			</form>
 
 		</div>
 		
@@ -19,17 +28,29 @@
 					
 					<div class="modal-body">
 						<label for="folderName"></label>
-						<input type="text" name="folderName" id='folderName'>
+						<input type="text" name="folderName" id='folderCreateName'>
 					</div>
 					<div class="modal-footer">
-						<button id="btnNewFolder" type="button" class="btn btn-primary">Create</button>
+						<div id="err507" style="display: none;color: red;">Folder Could Not be Created</div>
+						<div id="errExist" style="display: none;color: red;">Folder Already Exists</div>
+						<button id="btnCreate" type="button" class="btn btn-primary">Create</button>
 					</div>
 				</div>
 			</div>
 		</div>
 
+		<nav aria-label="breadcrumb">
+			<ol class="breadcrumb">
+				<li id="breadcrumb" class="breadcrumb-item"	aria-current="home">Home</li>
+			</ol>
+		</nav>
+
 		<div id="folder-container">
-			
+			<% if(data!= null){ %>
+				<% data.map( folder => { %>
+					<div class="folder" onclick="getFolderContents(event)"> <%= folder.folderName %> </div>
+				<% }) %>
+			<% } %>	
 		</div>
 
 
@@ -39,17 +60,72 @@
 </div>
 
 <script type="text/javascript">
-	// $(document).ready(function () {
-		
-	// });
 
-	$('#btnNewFolder').on('click', ()=>{
-		
-	})
+	var foldername = '';
+	
+	$('#btnCreate').on('click', createFolder);
+
+	function createFolder(){
+		$('#err507').css('display', 'none');
+		$('#errExist').css('display', 'none');
+		const folderName = $('#folderCreateName').val();
+
+		$.ajax({
+			method: "POST",
+			url: "createfolder",
+			data: {folderName: folderName},
+			statusCode: {
+				507: function(){
+					$('#err507').css('display', 'block');
+				},
+				300: function(){
+					$('#errExist').css('display', 'block');
+				}
+			}
+		})
+		.done(function(){
+			var div = $('<div></div>').addClass('folder').click(getFolderContents).text(folderName);
+			$('#folder-container').append(div);
+			
+		});
+	}
+
+	function getFolderContents (event){
+		const folderName = event.target.innerText;
+		foldername = folderName;
+		$.ajax({
+			method: "POST",
+			url: '/home/' + folderName,
+			data: {folderName: folderName}
+		})
+		.done( function(text){			
+			$('#folder-container').empty();
+			var folderData = JSON.parse(text);		
+			var a = $('<a>').attr({'href': '/home'});
+			a.text('Home');
+			$('#breadcrumb').empty();
+			$('#breadcrumb').append(a);
+			
+			folderData.map(item=>{
+				var div = $('<div></div>').addClass('item').click(handleItemClick).text(item);
+				$('#folder-container').append(div);
+			})
+
+		});
+	}
+
+	function submitForm(event){
+		$('#inputFolderName').val(foldername);
+		$('#form').submit();
+	}
+
+	function handleItemClick(){
+		console.log("handleItemClick Triggerred");
+	}
 
 	$('#btnModal').on('click', ()=>{
 		setTimeout(() => {
-			$('#folderName').focus();
+			$('#folderCreateName').focus();
 		}, 500);
 	})
 
