@@ -9,14 +9,18 @@ body {
 
 .nav-header {
     height: 70px;
-    position: sticky;
-    top: 0;
     background-color: rgb(255, 255, 255);
 }
 
+.header-navbar {
+    /* position: sticky;
+    top: 0; */
+    
+    box-shadow: 0 5px 20px 1px #ddd;
+}
+
 .nav-header .navbar-brand {
-    color: rgb(79, 182, 223);
-    font-weight: 900;
-    font-size: 30px;
+    color: #007bff;
+    font-size: 40px;
     padding: 5px;
 }

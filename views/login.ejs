@@ -1,103 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title><% if(!reg) { %>Login<% } else {%>Register<% } %></title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="/login/vendor/bootstrap/css/bootstrap.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="/login/fonts/font-awesome-4.7.0/css/font-awesome.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="/login/fonts/Linearicons-Free-v1.0.0/icon-font.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="/login/vendor/animate/animate.css">
+<!--===============================================================================================-->	
+	<link rel="stylesheet" type="text/css" href="/login/vendor/css-hamburgers/hamburgers.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="/login/vendor/animsition/css/animsition.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="/login/vendor/select2/select2.min.css">
+<!--===============================================================================================-->	
+	<link rel="stylesheet" type="text/css" href="/login/vendor/daterangepicker/daterangepicker.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="/login/css/util.css">
+	<link rel="stylesheet" type="text/css" href="/login/css/main.css">
+<!--===============================================================================================-->
+</head>
+<body style="background-color: #666666;">
+	
+	<div class="limiter">
+		<div class="container-login100">
+			<div class="wrap-login100">
+				<form class="login100-form validate-form">
 
-<%- include('partials/header') %>  
+					<% if(!reg) { %>
+						<span class="login100-form-title p-b-43">
+							Login to continue
+						</span>
+					<% } %>
 
-<link rel="stylesheet" href="stylesheets/login.css">
+					<% if(reg) { %>
+						<span class="login100-form-title p-b-43">
+							Register
+						</span>
+					<% } %>
+					
+					<div class="wrap-input100 validate-input" data-validate = "Valid email is required: ex@abc.xyz">
+						<input class="input100" type="text" id="inputEmail" name="username">
+						<span class="focus-input100"></span>
+						<span class="label-input100">Email</span>
+					</div>
+					
+					<div class="wrap-input100 validate-input" data-validate="Password is required">
+						<input class="input100" id="inputPassword" type="password" name="password">
+						<span class="focus-input100"></span>
+						<span class="label-input100">Password</span>
+					</div>
 
-<div class="login-form ">
+					<% if(reg) { %>
+						<div class="wrap-input100 validate-input" data-validate="Passwords do not match">
+							<input class="input100" onchange="checkPass" id="confirmPass" type="password" name="confirmPassword">
+							<span class="focus-input100"></span>
+							<span class="label-input100">Confirm Password</span>
+						</div>
+					<% } %>
 
-	<ul class="nav nav-pills nav-fill tabs mb-3" id="pills-tab" role="tablist">
-		<li class="nav-item">
-			<a class="nav-link active" id="login-tab" data-toggle="pill" href="#login" role="tab" aria-controls="login" aria-selected="true">Login</a>
-		</li>
-		<li class="nav-item">
-			<a class="nav-link " id="register-tab" data-toggle="pill" href="#register" role="tab" aria-controls="register" aria-selected="false">Register</a>
-		</li>
-	</ul>
+					<div class="flex-sb-m w-full p-t-3 p-b-32">
+						<div class="contact100-form-checkbox">
+							<input class="input-checkbox100" id="ckb1" type="checkbox" name="remember-me">
+							<label class="label-checkbox100" for="ckb1">
+								Remember me
+							</label>
+						</div>
 
-	<div class="tab-content" id='pills-tabContent'>
-		<div id="login" class="tab-pane fade show active" role="tabpanel" aria-labelledby="login-tab">
-			<form class=" form-signin">
-				<h1 class="h3 mb-3 font-weight-normal">Sign in</h1>
-				<label for="inputEmail" class="sr-only">Email address</label>
-				<input type="email" name="username" id="inputEmail" class="form-control" placeholder="Email address" required="" autofocus="">
-				<label for="inputPassword" class="sr-only">Password</label>
-				<input type="password" name="password" id="inputPassword" class="form-control confirm-pass" placeholder="Password" required="">
-				<button class="btn btn-lg btn-primary btn-block" onclick="handleLogin(event)" name="btnLogin" type="submit">Sign In</button>
-				<div id='errLogin' style="display: none;" class="err err-registered">Invalid Credentials!</div>
-			</form>
-		</div>
-		
-		<div id="register" class="tab-pane fade show " role="tabpanel" aria-labelledby="register-tab">
-			<form action="/register" method="POST" class="form-signin">
-				<h1 class="h3 mb-3 font-weight-normal">Sign Up</h1>
-				<label for="inputEmail" class="sr-only">Email address</label>
-				<input type="email" name="username" id="inputRegEmail" class="form-control" placeholder="Email address" required="" autofocus="">
-				<label for="inputPassword" class="sr-only">Password</label>
-				<input type="password" name="password" id="inputRegPassword" class="form-control" placeholder="Password" required="">
-				<label for="inputConfirmPassword" class="sr-only">Confirm Password</label>
-				<input type="password" id="inputConfirmPassword" class="form-control confirm-pass" placeholder="Confirm Password" required="">
-				
-				<button class="btn btn-lg btn-primary btn-block" onclick="handleRegister(event)" name="btnRegister" type="submit">Sign Up</button>
-				<div id='errDiffPass' style="display: none;" class="err err-registered">Password DO NOT MATCH</div>
-				<div id='errRegd' style="display: none;" class="err err-registered">User Already Registered</div>
+						<% if(reg) {%>
+							<script>
+								function checkPass() {
+									if($('#confirmPass').val() !== $('#inputPassword').val()){
+										$('#confirmPass').parent().addClass('alert-validate');
+									} else {
+										$('#confirmPass').parent().removeClass('alert-validate');
+									}
+								}
+							</script>
+						<% } %>
 
-			</form>
+						<% if(!reg) { %>
+						<div>
+							<a href="/forgotpass" class="txt1">
+								Forgot Password?
+							</a>
+						</div>
+						<% } %>
+					</div>
+			
+
+					<div class="container-login100-form-btn">
+						<button class="login100-form-btn">
+							<% if(!reg) { %>Login<% } else {%>Register<% } %>
+						</button>
+					</div>
+
+					<div id='errRegd' style="display: none" class="err text-center p-t-10 p-b-10">
+						<div href="/login" class="txt2">
+							User Already Registered
+						</div>
+					</div>
+
+					<div id='errLogin' style="display: none" class="err text-center p-t-10 p-b-10">
+						<div href="/login" class="txt2">
+							Invalid Credentials
+						</div>
+					</div>
+					
+					<% if(!reg) { %>
+					<div class="text-center p-t-20 p-b-20">
+						<a href="/register" class="txt2">
+							Sign Up instead
+						</a>
+					</div>
+					<% } %>
+
+					<% if(reg) { %>
+						<div class="text-center p-t-20 p-b-20">
+							<a href="/login" class="txt2">
+								Already Registered? Sign In
+							</a>
+						</div>
+						<% } %>
+
+					<div class="login100-form-social flex-c-m">
+						<a href="#" class="login100-form-social-item flex-c-m bg1 m-r-5">
+							<i class="fa fa-facebook-f" aria-hidden="true"></i>
+						</a>
+
+						<a href="#" class="login100-form-social-item flex-c-m bg2 m-r-5">
+							<i class="fa fa-twitter" aria-hidden="true"></i>
+						</a>
+					</div>
+				</form>
+
+				<div class="login100-more" style="background-image: url('/login/images/bg-01.jpg');">
+				</div>
+			</div>
 		</div>
 	</div>
-</div>
+	
+	
 
-<script>
-	function handleLogin(event){
-		event.preventDefault();
-		$("#errLogin").css("display", "none");
-		
-			const user = {
-		  	username: $("#inputEmail").val(),
-		  	password: $("#inputPassword").val()
-		  }
-			var xhttp = new XMLHttpRequest();
-    	xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 ) {
-					if( this.status == 401){
-						$("#errLogin").css("display", "block");
-					} else if(this.status ==200) {
-						window.location.href = "/home";
-					}
-       }
-    	};
-			xhttp.open("POST", "/login");
-			xhttp.setRequestHeader("Content-type", "application/json");
-    	xhttp.send(JSON.stringify(user));
-		
-	}
+	
+	
+<!--===============================================================================================-->
+	<script src="/login/vendor/jquery/jquery-3.2.1.min.js"></script>
+<!--===============================================================================================-->
+	<script src="/login/vendor/animsition/js/animsition.min.js"></script>
+<!--===============================================================================================-->
+	<script src="/login/vendor/bootstrap/js/popper.js"></script>
+	<script src="/login/vendor/bootstrap/js/bootstrap.min.js"></script>
+<!--===============================================================================================-->
+	<script src="/login/vendor/select2/select2.min.js"></script>
+<!--===============================================================================================-->
+	<script src="/login/vendor/daterangepicker/moment.min.js"></script>
+	<script src="/login/vendor/daterangepicker/daterangepicker.js"></script>
+<!--===============================================================================================-->
+	<script src="/login/vendor/countdowntime/countdowntime.js"></script>
+<!--===============================================================================================-->
+	<script src="/login/js/main.js"></script>
 
-	function handleRegister(event) {
-		event.preventDefault();
-		$('#errDiffPass').css("display", "none");
-		$("#errRegd").css("display", "none");
-		const user = {
-		username: $("#inputRegEmail").val(),
-		password: $("#inputRegPassword").val()
-		}
-		if($('#inputRegPassword').val() == $('#inputConfirmPassword').val()){
-			var xhttp1 = new XMLHttpRequest();
-		xhttp1.onreadystatechange = function() {
-		if (this.readyState == 4) {
-			if(this.status == 401){
-				$("#errRegd").css("display", "block");
-			} 
-			else if(this.status == 200){
-				window.location.href = "/home";
-			}
-		}
-		};
-			xhttp1.open("POST", "/register");
-			xhttp1.setRequestHeader("Content-type", "application/json");
-		xhttp1.send(JSON.stringify(user));
-		} else {
-			$('#errDiffPass').css("display", "block");
-			$('#inputRegPassword').focus();
-		}			
-	}
-</script>
-<%- include('partials/footer') %> 
+</body>
+</html>
