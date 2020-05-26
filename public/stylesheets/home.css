@@ -6,3 +6,11 @@
   width: 40px;
   margin: 10px
 }
+
+.hide-form {
+  display: none;
+}
+
+.hide-create-folder {
+  display: none;
+}

@@ -25,7 +25,7 @@ app.use(
 );
 
 
-mongoose.connect("mongodb://localhost:27017/medicvDB", {useNewUrlParser: true,useCreateIndex: true , useUnifiedTopology: true}, (err)=>{
+mongoose.connect("mongodb://localhost:27017/medicvDB", {useNewUrlParser: true, useCreateIndex: true , useUnifiedTopology: true, useFindAndModify: false}, (err)=>{
   if(err){
     console.log("DB Connection Error");
   } else {
@@ -39,7 +39,7 @@ app.use(passport.session());
 const userSchema = new mongoose.Schema({
   name: String,
   email: String,
-  uploads: [ {folderName: String, contents: [String]} ],
+  uploads: [ {folderName: String, contents: [{ _id: String, displayName: String}]} ],
   password: String,
   verified: Boolean,
   dateCreated: Date,
@@ -158,13 +158,13 @@ app.get("/home", (req, res) => {
     if(err){
       console.log(err);
     } else {
-      res.render("home", {data: data.uploads});
+      res.render("home", {data: data.uploads, user: `${req.user.id}`});
     }
   })
 });
 
 app.post('/home/:folderName', (req, res)=>{
-  console.log(req.path);
+  // console.log(req.path);
   
   User.findById(req.user.id, (err, data)=>{
     if(err){
@@ -209,10 +209,19 @@ var multerConf = {
 
 app.post('/uploadfile', multer(multerConf).single('photo'), (req, res)=>{ 
 
-  //store in DB
+  User.updateOne(
+    {_id: req.user.id, "uploads.folderName": req.body.foldername },
+    { $push: {"uploads.$.contents": { _id: req.file.filename , displayName: req.body.fileName}} },
+    (err, data)=>{
+      if(err){
+        console.log(err);
+      } else {
+        res.send("OK");
+      }
+    }
+  );
 
 
-  //send response
   
 
 })
