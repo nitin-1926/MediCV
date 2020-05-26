@@ -12,11 +12,10 @@
 			</button>
 			
 
-			<form id="form" action="/uploadfile" method="post" enctype="multipart/form-data">
+			<form class="hide-form" id="fileForm" action="/uploadfile" method="post" enctype="multipart/form-data">
 				<input type="file" id='inputUploadPic' name="photo" />
-				<input type="text" name='fileName'>
-				<input hidden name='foldername' type="text" id='inputFolderName'>
-				<input type="button" onclick="submitForm()" value="Upload">
+				<input type="text" id="filename" name='fileName'>
+				<input type="submit" id="submitFileForm">
 			</form>
 
 		</div>
@@ -41,7 +40,7 @@
 
 		<nav aria-label="breadcrumb">
 			<ol class="breadcrumb">
-				<li id="breadcrumb" class="breadcrumb-item"	aria-current="home">Home</li>
+				<li id="breadcrumbHome" class="breadcrumb-item"	aria-current="home">Home</li>
 			</ol>
 		</nav>
 
@@ -62,6 +61,9 @@
 <script type="text/javascript">
 
 	var foldername = '';
+	var userFolder = <%-JSON.stringify(user)%>;
+	console.log(userFolder);
+	
 	
 	$('#btnCreate').on('click', createFolder);
 
@@ -103,21 +105,44 @@
 			var folderData = JSON.parse(text);		
 			var a = $('<a>').attr({'href': '/home'});
 			a.text('Home');
-			$('#breadcrumb').empty();
-			$('#breadcrumb').append(a);
+			$('#breadcrumbHome').empty();
+			$('#breadcrumbHome').append(a);
+			var currentFolder = $('<li>').attr({'class': 'breadcrumb-item'});
+			currentFolder.text(foldername);
+			$('.breadcrumb').append(currentFolder);
+
+			$('#btnModal').toggleClass('hide-create-folder');
+			$('#fileForm').toggleClass('hide-form');
 			
+			console.log(folderData);
+			
+
 			folderData.map(item=>{
-				var div = $('<div></div>').addClass('item').click(handleItemClick).text(item);
+				var div = $('<div></div>').addClass('item').click(handleItemClick).text(item.displayName);
+				var img = $('<img>').addClass('set image class here');
+				img.attr('src', `/uploads/${userFolder}/${foldername}/${item._id}`);
+				div.append(img);
 				$('#folder-container').append(div);
 			})
 
 		});
 	}
 
-	function submitForm(event){
-		$('#inputFolderName').val(foldername);
-		$('#form').submit();
-	}
+
+	$('#fileForm').submit(function(e){
+		e.preventDefault();
+		
+		$(this).ajaxSubmit({
+			data: {
+				foldername: foldername,
+			},
+			contentType: 'application/json',
+      success: function(response){
+        console.log('image uploaded and form submitted');     
+       }
+		})
+
+	})
 
 	function handleItemClick(){
 		console.log("handleItemClick Triggerred");
