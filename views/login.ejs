@@ -47,20 +47,20 @@
 					<div class="wrap-input100 validate-input" data-validate = "Valid email is required: ex@abc.xyz">
 						<input class="input100" type="text" id="inputEmail" name="username">
 						<span class="focus-input100"></span>
-						<span class="label-input100">Email</span>
+						<span class="label-input100"><b>Email</b></span>
 					</div>
 					
 					<div class="wrap-input100 validate-input" data-validate="Password is required">
 						<input class="input100" id="inputPassword" type="password" name="password">
 						<span class="focus-input100"></span>
-						<span class="label-input100">Password</span>
+						<span class="label-input100"><b>Password</b></span>
 					</div>
 
 					<% if(reg) { %>
 						<div class="wrap-input100 validate-input" data-validate="Passwords do not match">
 							<input class="input100" onchange="checkPass" id="confirmPass" type="password" name="confirmPassword">
 							<span class="focus-input100"></span>
-							<span class="label-input100">Confirm Password</span>
+							<span class="label-input100"><b>Confirm Password</b></span>
 						</div>
 					<% } %>
 
@@ -68,7 +68,7 @@
 						<div class="contact100-form-checkbox">
 							<input class="input-checkbox100" id="ckb1" type="checkbox" name="remember-me">
 							<label class="label-checkbox100" for="ckb1">
-								Remember me
+								<b>Remember me</b>
 							</label>
 						</div>
 

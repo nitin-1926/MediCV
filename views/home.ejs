@@ -7,10 +7,6 @@
 	<div class="container">
 		<br>
 		<div class="float-right">
-			<button id='btnModal' type="button" class="btn btn-primary" data-toggle="modal" data-target="#newfolder-modal">
-				Create New Folder
-			</button>
-			
 
 			<form class="hide-form" id="fileForm" action="/uploadfile" method="post" enctype="multipart/form-data">
 				<input type="file" id='inputUploadPic' name="photo" />
@@ -43,6 +39,14 @@
 				<li id="breadcrumbHome" class="breadcrumb-item"	aria-current="home">Home</li>
 			</ol>
 		</nav>
+
+		<button id='importbtnModal' type="button" class="btn btn-primary addfolder ml-3">
+			Import
+		</button>
+
+		<button id='btnModal' type="button" class="btn btn-primary addfolder" data-toggle="modal" data-target="#newfolder-modal">
+			Add New Folder
+		</button>
 
 		<div id="folder-container">
 			<% if(data!= null){ %>
