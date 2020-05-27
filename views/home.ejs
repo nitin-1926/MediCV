@@ -1,9 +1,11 @@
 <%- include('partials/header') %> 
 <%- include('partials/navbar') %> 
-
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/tippy.js@6/animations/scale.css"
+/>
 <link rel="stylesheet" href="/stylesheets/styles.css">
 <link rel="stylesheet" href="/stylesheets/home.css">
-
 <link rel="stylesheet" href="/css/style.css">
 <link rel="stylesheet" href="/css/font-awesome.min.css">
 <div class="wrapper">
@@ -58,15 +60,33 @@
 						<span>
 							<i class="fa fa-folder fa-5x" style="color: inherit;"></i>
 						</span><br>
-						<span class="folderName"><%= folder.folderName %></span>
+						<span class="folderName"><%= folder.folderName %></span><br>
+						<i class="fa fa-pencil moreOptionsRename"></i>
+						<i class="fa fa-trash moreOptionsDelete ml-2"></i>
 					</div>
 				<% }) %>
 			<% } %>	
 		</div>
 	</div>
 </div>
+<script src="https://unpkg.com/@popperjs/core@2/dist/umd/popper.min.js"></script>
+<script src="https://unpkg.com/tippy.js@6/dist/tippy-bundle.umd.js"></script>
+
+<!-- Production -->
+<script src="https://unpkg.com/@popperjs/core@2"></script>
+<script src="https://unpkg.com/tippy.js@6"></script>
 
 <script type="text/javascript">
+
+	tippy('.moreOptionsDelete', {
+	content: "Delete Folder",
+	placement: "right"
+	});
+
+	tippy('.moreOptionsRename', {
+	content: "Rename Folder",
+	placement: "left"
+	});
 
 	var foldername = '';
 	var userFolder = <%-JSON.stringify(user)%>;
@@ -99,6 +119,11 @@
 		});
 		location.reload();
 	}
+
+	// function moreOptionsMenu(){
+	// 	var moreOptionsMenu = document.getElementById("moreOptionsMenudiv");
+	// 	moreOptionsMenu.style["display"] = "block";
+	// }
 
 	function getFolderContents (event){
 		const folderName = event.target.innerText;
