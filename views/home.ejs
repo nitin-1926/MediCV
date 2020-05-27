@@ -22,18 +22,36 @@
 		</div>
 		
 
-		<div class="modal fade" id="newfolder-modal" tabindex="-1" role="dialog" aria-hidden="true" style="z-index: 9999 !important;">
+		<div class="modal fade" id="newfolder-modal" tabindex="-1" role="dialog" aria-hidden="true">
 			<div class="modal-dialog modal-dialog-scrollable" role="document">
 				<div class="modal-content">
 					
 					<div class="modal-body">
 						<label for="folderName"></label>
-						<input type="text" name="folderName" id='folderCreateName'>
+						<b>Enter the Name of The Folder (Avoid Spaces)</b>
+						<input class="mt-4 inputModal" type="textarea" name="folderName" id='folderCreateName' placeholder="Name...">
 					</div>
 					<div class="modal-footer">
 						<div id="err507" style="display: none;color: red;">Folder Could Not be Created</div>
 						<div id="errExist" style="display: none;color: red;">Folder Already Exists</div>
-						<button id="btnCreate" type="button" class="btn btn-primary">Create</button>
+						<button id="btnCreate" type="button" class="btn btn-success btn-sm">Create</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="modal fade" id="import-modal" tabindex="-1" role="dialog" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-scrollable" role="document">
+				<div class="modal-content">
+					
+					<div class="modal-body">
+						<label ></label>
+						<b>Enter the mail id from the person you want to import</b>
+						<input class="mt-4 inputModal" type="textarea" name="folderName" id='folderCreateName' placeholder="Email...">
+					</div>
+					<div class="modal-footer">
+						<div id="err007" style="display: none;color: red;"><b>User Doesnot Exists</b></div>
+						<button id="btnCreate" type="button" class="btn btn-warning btn-sm">Send Request</button>
 					</div>
 				</div>
 			</div>
@@ -45,12 +63,12 @@
 			</ol>
 		</nav>
 
-		<button id='importbtnModal' type="button" class="btn btn-primary addfolder ml-3">
-			Import
+		<button id='importbtnModal' type="button" class="btn btn-primary btn-sm addfolder ml-3" data-toggle="modal" data-target="#import-modal">
+			<i class="fa fa-exchange mr-2"></i>Import
 		</button>
 
-		<button id='btnModal' type="button" class="btn btn-primary addfolder" data-toggle="modal" data-target="#newfolder-modal">
-			Add New Folder
+		<button id='btnModal' type="button" class="btn btn-primary btn-sm addfolder" data-toggle="modal" data-target="#newfolder-modal">
+			<i class="fa fa-plus-circle mr-2"></i>Add New Folder
 		</button>
 
 		<div id="folder-container" class="container">
@@ -119,11 +137,6 @@
 		});
 		location.reload();
 	}
-
-	// function moreOptionsMenu(){
-	// 	var moreOptionsMenu = document.getElementById("moreOptionsMenudiv");
-	// 	moreOptionsMenu.style["display"] = "block";
-	// }
 
 	function getFolderContents (event){
 		const folderName = event.target.innerText;

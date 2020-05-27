@@ -1,5 +1,4 @@
 .folder {
-  padding-right: 25px;
   height: 100px;
   width: 100px;
   float: left;
@@ -15,7 +14,7 @@
 }
 
 #folder-container{
-  margin-top: 5%;
+  margin-top: 4%;
 }
 .folderName{
   margin-top: -5%;
@@ -26,7 +25,8 @@
 .addfolder{
   float: right;
 }
-.folderCreateName{
-  height: 20px;
+.inputModal{
+  height: 50px;
   width: 100%;
+  border: 1px solid grey;
 }
