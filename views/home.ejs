@@ -1,16 +1,17 @@
 <%- include('partials/header') %> 
 <%- include('partials/navbar') %> 
-
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/tippy.js@6/animations/scale.css"
+/>
 <link rel="stylesheet" href="/stylesheets/styles.css">
 <link rel="stylesheet" href="/stylesheets/home.css">
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/font-awesome.min.css">
 <div class="wrapper">
 	<div class="container">
 		<br>
 		<div class="float-right">
-			<button id='btnModal' type="button" class="btn btn-primary" data-toggle="modal" data-target="#newfolder-modal">
-				Create New Folder
-			</button>
-			
 
 			<form class="hide-form" id="fileForm" action="/uploadfile" method="post" enctype="multipart/form-data">
 				<input type="file" id='inputUploadPic' name="photo" />
@@ -27,12 +28,30 @@
 					
 					<div class="modal-body">
 						<label for="folderName"></label>
-						<input type="text" name="folderName" id='folderCreateName'>
+						<b>Enter the Name of The Folder (Avoid Spaces)</b>
+						<input class="mt-4 inputModal" type="textarea" name="folderName" id='folderCreateName' placeholder="Name...">
 					</div>
 					<div class="modal-footer">
 						<div id="err507" style="display: none;color: red;">Folder Could Not be Created</div>
 						<div id="errExist" style="display: none;color: red;">Folder Already Exists</div>
-						<button id="btnCreate" type="button" class="btn btn-primary">Create</button>
+						<button id="btnCreate" type="button" class="btn btn-success btn-sm">Create</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="modal fade" id="import-modal" tabindex="-1" role="dialog" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-scrollable" role="document">
+				<div class="modal-content">
+					
+					<div class="modal-body">
+						<label ></label>
+						<b>Enter the mail id from the person you want to import</b>
+						<input class="mt-4 inputModal" type="textarea" name="folderName" id='folderCreateName' placeholder="Email...">
+					</div>
+					<div class="modal-footer">
+						<div id="err007" style="display: none;color: red;"><b>User Doesnot Exists</b></div>
+						<button id="btnCreate" type="button" class="btn btn-warning btn-sm">Send Request</button>
 					</div>
 				</div>
 			</div>
@@ -44,26 +63,52 @@
 			</ol>
 		</nav>
 
-		<div id="folder-container">
+		<button id='importbtnModal' type="button" class="btn btn-primary btn-sm addfolder ml-3" data-toggle="modal" data-target="#import-modal">
+			<i class="fa fa-exchange mr-2"></i>Import
+		</button>
+
+		<button id='btnModal' type="button" class="btn btn-primary btn-sm addfolder" data-toggle="modal" data-target="#newfolder-modal">
+			<i class="fa fa-plus-circle mr-2"></i>Add New Folder
+		</button>
+
+		<div id="folder-container" class="container">
 			<% if(data!= null){ %>
 				<% data.map( folder => { %>
-					<div class="folder" onclick="getFolderContents(event)"> <%= folder.folderName %> </div>
+					<div class="folder mt-5 ml-5" onclick="getFolderContents(event)">
+						<span>
+							<i class="fa fa-folder fa-5x" style="color: inherit;"></i>
+						</span><br>
+						<span class="folderName"><%= folder.folderName %></span><br>
+						<i class="fa fa-pencil moreOptionsRename"></i>
+						<i class="fa fa-trash moreOptionsDelete ml-2"></i>
+					</div>
 				<% }) %>
 			<% } %>	
 		</div>
-
-
 	</div>
-
-
 </div>
+<script src="https://unpkg.com/@popperjs/core@2/dist/umd/popper.min.js"></script>
+<script src="https://unpkg.com/tippy.js@6/dist/tippy-bundle.umd.js"></script>
+
+<!-- Production -->
+<script src="https://unpkg.com/@popperjs/core@2"></script>
+<script src="https://unpkg.com/tippy.js@6"></script>
 
 <script type="text/javascript">
+
+	tippy('.moreOptionsDelete', {
+	content: "Delete Folder",
+	placement: "right"
+	});
+
+	tippy('.moreOptionsRename', {
+	content: "Rename Folder",
+	placement: "left"
+	});
 
 	var foldername = '';
 	var userFolder = <%-JSON.stringify(user)%>;
 	console.log(userFolder);
-	
 	
 	$('#btnCreate').on('click', createFolder);
 
@@ -86,10 +131,11 @@
 			}
 		})
 		.done(function(){
-			var div = $('<div></div>').addClass('folder').click(getFolderContents).text(folderName);
+			var div = $(`<div></div>`).addClass('folder').click(getFolderContents).text(folderName);
 			$('#folder-container').append(div);
 			
 		});
+		location.reload();
 	}
 
 	function getFolderContents (event){
@@ -128,7 +174,6 @@
 		});
 	}
 
-
 	$('#fileForm').submit(function(e){
 		e.preventDefault();
 		
@@ -155,7 +200,5 @@
 	})
 
 </script>
-
-
 
 <%- include('partials/footer') %> 

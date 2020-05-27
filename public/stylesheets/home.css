@@ -1,10 +1,8 @@
 .folder {
-  background-color: green;
+  height: 100px;
+  width: 100px;
   float: left;
-  color: red;
-  height: 40px;
-  width: 40px;
-  margin: 10px
+  cursor: pointer;
 }
 
 .hide-form {
@@ -13,4 +11,22 @@
 
 .hide-create-folder {
   display: none;
+}
+
+#folder-container{
+  margin-top: 4%;
+}
+.folderName{
+  margin-top: -5%;
+  text-align: center;
+  font-size: 20px;
+  font-weight: 500;
+}
+.addfolder{
+  float: right;
+}
+.inputModal{
+  height: 50px;
+  width: 100%;
+  border: 1px solid grey;
 }
