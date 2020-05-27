@@ -206,7 +206,6 @@ var multerConf = {
   }
 };
 
-
 app.post('/uploadfile', multer(multerConf).single('photo'), (req, res)=>{ 
 
   User.updateOne(
@@ -220,10 +219,21 @@ app.post('/uploadfile', multer(multerConf).single('photo'), (req, res)=>{
       }
     }
   );
+})
 
-
-  
-
+app.post('/renamefolder', (req, res)=>{
+  User.updateOne(
+    {_id: req.user.id, "uploads.folderName": req.body.oldFolderName },
+    { $set: { "uploads.$.folderName": req.body.newFolderName } },
+    (err, data)=>{
+      if(err){
+        console.log(err);
+        res.sendStatus(500);
+      } else {
+        res.sendStatus(200);
+      }
+    }
+  )
 })
 
 //  Create User Folder if does not exists...
@@ -233,7 +243,6 @@ function createUserFolder(id){
     fs.mkdirSync(dir);
   }
   pwd = '/uploads/' + id;  //  set pwd to serve static files
-  
 }
 
 app.post('/createfolder', (req, res)=>{

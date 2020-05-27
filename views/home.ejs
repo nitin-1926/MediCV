@@ -27,9 +27,9 @@
 				<div class="modal-content">
 					
 					<div class="modal-body">
-						<label for="folderName"></label>
+						<label for="folderName" ></label>
 						<b>Enter the Name of The Folder (Avoid Spaces)</b>
-						<input class="mt-4 inputModal" type="textarea" name="folderName" id='folderCreateName' placeholder="Name...">
+						<input class="mt-4 inputModal"style="padding: 5px;" type="textarea" name="folderName" id='folderCreateName' placeholder="Name...">
 					</div>
 					<div class="modal-footer">
 						<div id="err507" style="display: none;color: red;">Folder Could Not be Created</div>
@@ -74,13 +74,13 @@
 		<div id="folder-container" class="container">
 			<% if(data!= null){ %>
 				<% data.map( folder => { %>
-					<div class="folder mt-5 ml-5" onclick="getFolderContents(event)">
-						<span>
+					<div class="folder mt-5 ml-5" style="text-align: center;" >
+						<span onclick="getFolderContents(event)">
 							<i class="fa fa-folder fa-5x" style="color: inherit;"></i>
 						</span><br>
 						<span class="folderName"><%= folder.folderName %></span><br>
-						<i class="fa fa-pencil moreOptionsRename"></i>
-						<i class="fa fa-trash moreOptionsDelete ml-2"></i>
+						<i onclick="renameFolder(event)" class="fa fa-pencil moreOptionsRename"></i>
+						<i onclick="deleteFolder(event)" class="fa fa-trash moreOptionsDelete ml-2"></i>
 					</div>
 				<% }) %>
 			<% } %>	
@@ -108,7 +108,6 @@
 
 	var foldername = '';
 	var userFolder = <%-JSON.stringify(user)%>;
-	console.log(userFolder);
 	
 	$('#btnCreate').on('click', createFolder);
 
@@ -138,8 +137,48 @@
 		location.reload();
 	}
 
+	function renameFolder(event){
+		var nameNode =  event.target.parentNode.children[2];
+		var oldFolderName = nameNode.innerText;
+
+		nameNode.setAttribute('contentEditable', 'true');
+		nameNode.focus();
+
+		nameNode.addEventListener('keypress', function(e){
+			if(e.keyCode == 13){
+				e.preventDefault();
+				nameNode.setAttribute('contentEditable', 'false');
+				if(oldFolderName != nameNode.innerText){
+					$.ajax({
+						method: 'POST',
+						url: 'renamefolder',
+						data: {
+							oldFolderName: oldFolderName,
+							newFolderName: nameNode.innerText
+						},
+						statusCode: {
+							500: function(){
+								nameNode.innerText = oldFolderName;
+							},
+							200: function(){
+								oldFolderName = nameNode.innerText;
+							}
+						}
+					})
+				}
+			}
+		})
+		
+	}
+
+	function deleteFolder(event){
+		var folderName = event.target.parentNode.children[2].innerText;
+
+	}
+
 	function getFolderContents (event){
-		const folderName = event.target.innerText;
+
+		var folderName = event.currentTarget.parentNode.children[2].innerText;		
 		foldername = folderName;
 		$.ajax({
 			method: "POST",
@@ -159,9 +198,6 @@
 
 			$('#btnModal').toggleClass('hide-create-folder');
 			$('#fileForm').toggleClass('hide-form');
-			
-			console.log(folderData);
-			
 
 			folderData.map(item=>{
 				var div = $('<div></div>').addClass('item').click(handleItemClick).text(item.displayName);
