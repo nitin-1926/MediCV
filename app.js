@@ -215,7 +215,7 @@ app.post('/uploadfile', multer(multerConf).single('photo'), (req, res)=>{
       if(err){
         console.log(err);
       } else {
-        res.send("OK");
+        res.send({displayName: req.body.fileName, _id: req.file.filename});
       }
     }
   );

@@ -158,14 +158,24 @@
 		});
 	}
 
-	$(document).ready(function(){
+	// $(document).ready(function(){
 		
-		$('.folderName').on('keypress', function(e){
+		
+	// })
+
+	function renameFolder(event){
+		var nameNode =  event.target.parentNode.children[2];
+		var oldFolderName = nameNode.innerText;
+
+		nameNode.setAttribute('contentEditable', 'true');
+		nameNode.focus();
+		var times = 0;
+		nameNode.addEventListener('keypress', function(e){
 			if(e.keyCode == 13){
 				e.preventDefault();
 				nameNode.setAttribute('contentEditable', 'false');
-				// times++;
-				// if(times==1){
+				times++;
+				if(times==1){
 					if(oldFolderName != nameNode.innerText){
 						$.ajax({
 							method: 'POST',
@@ -189,22 +199,10 @@
 							}
 						})
 					}
-				// } else {
-					// return;
-				// }
+				} else {
+					return;
+				}
 			}
-		})
-	})
-
-	function renameFolder(event){
-		var nameNode =  event.target.parentNode.children[2];
-		var oldFolderName = nameNode.innerText;
-
-		nameNode.setAttribute('contentEditable', 'true');
-		nameNode.focus();
-		var times = 0;
-		nameNode.addEventListener('keypress', function(e){
-			
 		})
 		
 	}
@@ -275,7 +273,13 @@
 			},
 			contentType: 'application/json',
       success: function(response){
-        console.log('image uploaded and form submitted');     
+				var item = (response);
+				console.log(item);    
+				var div = $('<div></div>').addClass('item').click(handleItemClick).text(item.displayName);
+				var img = $('<img>').addClass('set image class here');
+				img.attr('src', `/uploads/${userFolder}/${foldername}/${item._id}`);
+				div.append(img);
+				$('#folder-container').append(div); 
        }
 		})
 
