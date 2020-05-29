@@ -222,19 +222,34 @@ app.post('/uploadfile', multer(multerConf).single('photo'), (req, res)=>{
 })
 
 app.post('/renamefolder', (req, res)=>{
-  User.updateOne(
-    {_id: req.user.id, "uploads.folderName": req.body.oldFolderName },
-    { $set: { "uploads.$.folderName": req.body.newFolderName } },
-    (err, data)=>{
-      if(err){
-        console.log(err);
-        res.sendStatus(500);
-      } else {
-        res.sendStatus(200);
+  var oldDir = __dirname + '/public/uploads/' + req.user.id + '/' + req.body.oldFolderName;
+  var newDir = __dirname + '/public/uploads/' + req.user.id + '/' + req.body.newFolderName;
+
+  if(!fs.existsSync(newDir)){
+    User.updateOne(
+      {_id: req.user.id, "uploads.folderName": req.body.oldFolderName },
+      { $set: { "uploads.$.folderName": req.body.newFolderName } },
+      (err, data)=>{
+        if(err){
+          console.log(err);
+          res.sendStatus(500);
+        } else {
+          fs.rename(oldDir, newDir, function(err){
+            if(err){
+              console.log(err);
+              return res.sendStatus(500);
+            } else {
+              return res.sendStatus(200);
+            }
+          });
+        }
       }
-    }
-  )
-})
+    )
+  } else {
+    return res.sendStatus(300);
+  }
+
+});
 
 //  Create User Folder if does not exists...
 function createUserFolder(id){
@@ -244,6 +259,24 @@ function createUserFolder(id){
   }
   pwd = '/uploads/' + id;  //  set pwd to serve static files
 }
+
+app.delete('/deletefolder', (req, res)=>{
+  var dir = __dirname + '/public/uploads/' + req.user.id + '/' + req.body.folderName;
+  User.updateOne(
+    { _id: req.user.id},
+    { $pull: { uploads: { folderName: req.body.folderName} } },
+    (err, data)=>{
+      if(err){
+        console.log(err);
+        res.send(err.message);
+      } else {
+        console.log(data);
+        fs.rmdirSync(dir, { recursive: true });
+        res.sendStatus(200);
+      }
+    }
+  )
+})
 
 app.post('/createfolder', (req, res)=>{
   var dir = __dirname + '/public/uploads/' + req.user.id + '/' + req.body.folderName;
