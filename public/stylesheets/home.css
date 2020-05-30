@@ -5,11 +5,8 @@
   cursor: pointer;
 }
 
-.hide-form {
-  display: none;
-}
 
-.hide-create-folder {
+.hide {
   display: none;
 }
 
