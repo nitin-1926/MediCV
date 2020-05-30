@@ -51,6 +51,7 @@
 					</div>
 					<div class="modal-footer">
 						<div id="errImportUser" style="display: none;color: red;"><b>User Does not Exists</b></div>
+						<div id="errEmailValidation" style="display: none;color: red;"><b>Email not valid</b></div>
 						<button id="btnSendImportRequest" type="button" class="btn btn-warning btn-sm">Send Request</button>
 					</div>
 				</div>
@@ -300,24 +301,28 @@
 	})
 
 	$('#btnSendImportRequest').on('click', function(){
-		var importFrom = $('#inputImportFrom');
-		console.log(importFrom);
+		$("#errEmailValidation").css('display', 'none');
+		var importFrom = $('#inputImportFrom').val();
 		
-		// var data = {
-		// 	importFromUser: importFrom
-		// }
-		// $.ajax({
-		// 	method: "POST",
-		// 	url: '/sendimportrequest',
-		// 	data: data,
-		// 	statusCode: {
-				
-		// 	}
-		// })
-		// .done(function(){
-		// 	console.log("sent Request");
-			
-		// })
+		var data = {
+			importFromUser: importFrom
+		}
+		$.ajax({
+			method: "POST",
+			url: '/sendimportrequest',
+			data: data,
+			statusCode: {
+				400: function(){
+					console.log("Email validation failed");
+					$("#errEmailValidation").css('display', 'block');
+				}
+			}
+		})
+		.done(function(){
+			console.log("sent Request");
+			$("#import-modal").modal('hide');
+			alert("Request Sent");
+		})
 	})
 
 </script>

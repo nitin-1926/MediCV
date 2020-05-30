@@ -39,6 +39,8 @@ app.use(passport.session());
 const userSchema = new mongoose.Schema({
   name: String,
   email: String,
+  recievedRequests: [{ from: String, status: String}],//  status: (accepted), (rejected), (none) -> not responded.
+  sentRequests: [{to: String, status: String}], 
   uploads: [ {folderName: String, contents: [{ _id: String, displayName: String}]} ],
   password: String,
   verified: Boolean,
@@ -303,9 +305,13 @@ app.delete('/deletefolder', (req, res)=>{
 })
 
 app.post('/sendimportrequest', (req, res)=>{
-  console.log(req.body);
-  
-  res.sendStatus(200);
+  var importFrom = req.body.importFromUser.toLowerCase();
+  const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  if(re.test(importFrom)){
+    res.sendStatus(200);
+  } else {
+    res.sendStatus(400);
+  }
 });
 
 app.get('/logout', (req, res)=>{
