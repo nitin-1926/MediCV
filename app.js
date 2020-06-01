@@ -38,7 +38,7 @@ app.use(passport.session());
 
 const userSchema = new mongoose.Schema({
   name: String,
-  email: String,
+  username: String,
   recievedRequests: [{ from: String, status: String}],//  status: (accepted), (rejected), (none) -> not responded.
   sentRequests: [{to: String, status: String}], 
   uploads: [ {folderName: String, contents: [{ _id: String, displayName: String}]} ],
@@ -89,8 +89,6 @@ function authenticateUser(req, res, next){
   }
 }
 
-
-
 //  Middleware  //
 app.all("*", authenticateUser);
 
@@ -133,7 +131,7 @@ app.post("/login", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
-  User.register({username: req.body.username.toLowerCase()}, req.body.password, function(err, user) {
+  User.register({username: req.body.username.trim().toLowerCase()}, req.body.password, function(err, user) {
     if (err) {
       if(err.name =="UserExistsError"){
         passport.authenticate("local")(req, res, function(){
@@ -305,12 +303,51 @@ app.delete('/deletefolder', (req, res)=>{
 })
 
 app.post('/sendimportrequest', (req, res)=>{
-  var importFrom = req.body.importFromUser.toLowerCase();
+  var importFrom = req.body.importFromUser.trim().toLowerCase();
+  if(importFrom == req.user.username){
+    return res.send({err: "You Cannot Send Request to Yourself. TY ❤️"})
+  }
   const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   if(re.test(importFrom)){
-    res.sendStatus(200);
+    var request = {
+      from: req.user.username,
+      status: 'none'
+    }
+    User.updateOne(
+      { username: importFrom },
+      { $push: { recievedRequests: request } }
+    )
+    .then(function(data){
+      if(data.n == 0){
+        return res.send({err: "No User"});
+      } else{
+        var request = {
+          to: importFrom,
+          status: 'none'
+        }
+        User.updateOne(
+          { _id: req.user.id },
+          { $push: { sentRequests: request } }
+        )
+        .then(function(data){
+          if(data.n == 0){
+            console.log("DB Inconsistent");
+            return res.send({err: "Could not process Request"});
+          }
+          return res.sendStatus(200);
+        })
+        .catch((err)=>{
+          console.log(err);
+          throw err;
+        })
+      }
+    })
+    .catch(function(err){
+      console.log(err);
+      throw err;
+    })
   } else {
-    res.sendStatus(400);
+    return res.sendStatus(400);
   }
 });
 

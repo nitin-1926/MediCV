@@ -315,13 +315,20 @@
 				400: function(){
 					console.log("Email validation failed");
 					$("#errEmailValidation").css('display', 'block');
+				},
+				501: function(){
+
 				}
 			}
+			
 		})
-		.done(function(){
-			console.log("sent Request");
-			$("#import-modal").modal('hide');
-			alert("Request Sent");
+		.done(function(response){
+			if(response.err){
+				alert(`Error: ${response.err}`);
+			} else {
+				$("#import-modal").modal('hide');
+				alert("Request Sent");
+			}
 		})
 	})
 
