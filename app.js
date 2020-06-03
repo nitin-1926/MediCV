@@ -158,7 +158,7 @@ app.get("/home", (req, res) => {
     if(err){
       console.log(err);
     } else {
-      res.render("home", {data: data.uploads, user: `${req.user.id}`});
+      res.render("home", {data: data.uploads, user: `${req.user.id}`, requests: req.user.recievedRequests.filter( request => request.status == 'none') });
     }
   })
 });
