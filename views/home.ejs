@@ -13,7 +13,7 @@
 		<br>
 		<div class="float-right">
 
-			<form class="hide-form" id="fileForm" action="/uploadfile" method="post" enctype="multipart/form-data">
+			<form class="hide" id="fileForm" action="/uploadfile" method="post" enctype="multipart/form-data">
 				<input type="file" id='inputUploadPic' name="photo" />
 				<input type="text" id="filename" name='fileName'>
 				<input type="submit" id="submitFileForm">
@@ -24,9 +24,9 @@
 
 		<div class="modal fade" id="newfolder-modal" tabindex="-1" role="dialog" aria-hidden="true">
 			<div class="modal-dialog modal-dialog-scrollable" role="document">
-				<div class="modal-content">
-					
+				<div class="modal-content">		
 					<div class="modal-body">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
 						<label for="folderName" ></label>
 						<b>Enter the Name of The Folder (Avoid Spaces)</b>
 						<input class="mt-4 inputModal"style="padding: 5px;" type="textarea" name="folderName" id='folderCreateName' placeholder="Name...">
@@ -43,15 +43,31 @@
 		<div class="modal fade" id="import-modal" tabindex="-1" role="dialog" aria-hidden="true">
 			<div class="modal-dialog modal-dialog-scrollable" role="document">
 				<div class="modal-content">
-					
 					<div class="modal-body">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
 						<label ></label>
 						<b>Enter the mail id from the person you want to import</b>
-						<input class="mt-4 inputModal" type="textarea" name="folderName" id='folderCreateName' placeholder="Email...">
+						<input class="mt-4 inputModal" style="padding: 5px;" type="email" name="folderName" required id='inputImportFrom' placeholder="Email...">
 					</div>
 					<div class="modal-footer">
-						<div id="err007" style="display: none;color: red;"><b>User Doesnot Exists</b></div>
-						<button id="btnCreate" type="button" class="btn btn-warning btn-sm">Send Request</button>
+						<div id="errImportUser" style="display: none;color: red;"><b>User Does not Exists</b></div>
+						<div id="errEmailValidation" style="display: none;color: red;"><b>Email not valid</b></div>
+						<button id="btnSendImportRequest" type="button" class="btn btn-warning btn-sm">Send Request</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="modal fade" id="confirm-delete-modal" tabindex="-1" role="dialog" aria-hidden="true">
+			<div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+				<div class="modal-content">
+					<div class="modal-body">
+						<b>Are you sure you want to delete this folder</b>
+					</div>
+					<div class="modal-footer my-modal-footer">
+						<button class="btn btn-danger" onclick="confirmedDelete()" type="button">Yes</button>
+						<button class="btn btn-secondary" data-dismiss="modal" type="button">No</button>
+						<div id="err007" style="display: none;color: red;"><b>Error</b></div>
 					</div>
 				</div>
 			</div>
@@ -74,13 +90,14 @@
 		<div id="folder-container" class="container">
 			<% if(data!= null){ %>
 				<% data.map( folder => { %>
-					<div class="folder mt-5 ml-5" style="text-align: center;" >
+					<div id='<%=folder.folderName%>' class="folder mt-5 ml-5" style="text-align: center;" >
 						<span onclick="getFolderContents(event)">
 							<i class="fa fa-folder fa-5x" style="color: inherit;"></i>
 						</span><br>
 						<span class="folderName"><%= folder.folderName %></span><br>
-						<i onclick="renameFolder(event)" class="fa fa-pencil moreOptionsRename"></i>
-						<i onclick="deleteFolder(event)" class="fa fa-trash moreOptionsDelete ml-2"></i>
+						<i onclick="renameFolder(event)" folder='<%=folder.folderName%>' class="fa fa-pencil moreOptionsRename"></i>
+						<!-- <i onclick="deleteFolder(event)" data-target="#confirm-delete-modal" class="fa fa-trash moreOptionsDelete ml-2"></i> -->
+						<i onclick="deleteFolder(event)" folder="<%=folder.folderName%>" class="fa fa-trash moreOptionsDelete ml-2"></i>
 					</div>
 				<% }) %>
 			<% } %>	
@@ -96,6 +113,13 @@
 
 <script type="text/javascript">
 
+	$('#btnCreate').on('click', createFolder);
+	$('.moreOptionsDelete').on('click', function(){
+		var folderName = $('#confirm-delete-modal').attr('folder');
+		$('#confirm-delete-modal .modal-body').html(`<b>Are you sure you want to delete this folder - ${folderName}</b>`);
+		$('#confirm-delete-modal').modal('show');
+	})
+
 	tippy('.moreOptionsDelete', {
 	content: "Delete Folder",
 	placement: "right"
@@ -108,8 +132,6 @@
 
 	var foldername = '';
 	var userFolder = <%-JSON.stringify(user)%>;
-	
-	$('#btnCreate').on('click', createFolder);
 
 	function createFolder(){
 		$('#err507').css('display', 'none');
@@ -130,41 +152,60 @@
 			}
 		})
 		.done(function(){
-			var div = $(`<div></div>`).addClass('folder').click(getFolderContents).text(folderName);
-			$('#folder-container').append(div);
-			
+			// var div = $(`<div></div>`).addClass('folder').click(getFolderContents).text(folderName);
+			// $('#folder-container').append(div);
+			location.reload();
 		});
-		location.reload();
 	}
 
 	function renameFolder(event){
-		var nameNode =  event.target.parentNode.children[2];
-		var oldFolderName = nameNode.innerText;
+		var nameNode =  $(event.target.parentNode.children[2]);
+		var oldFolderName = nameNode.text();
 
-		nameNode.setAttribute('contentEditable', 'true');
+		nameNode.attr('contentEditable', 'true');
 		nameNode.focus();
+		
+		$(document).on('click', function(){
+			nameNode.focus();
+		});
 
-		nameNode.addEventListener('keypress', function(e){
-			if(e.keyCode == 13){
+		var times = 0;   //  to stop multiple ajax calls on keydown,   keyup does not support e.preventDefaults()
+		nameNode.on('keydown', function(e){
+			if(e.keyCode == 27){
+				nameNode.text(oldFolderName);
+				nameNode.attr('contentEditable', 'false');
+				// location.reload();
+			}
+			else if(e.keyCode == 13){
 				e.preventDefault();
-				nameNode.setAttribute('contentEditable', 'false');
-				if(oldFolderName != nameNode.innerText){
-					$.ajax({
-						method: 'POST',
-						url: 'renamefolder',
-						data: {
-							oldFolderName: oldFolderName,
-							newFolderName: nameNode.innerText
-						},
-						statusCode: {
-							500: function(){
-								nameNode.innerText = oldFolderName;
+				nameNode.attr('contentEditable', 'false');
+				times++;
+				if(times==1){
+					if(oldFolderName != nameNode.text()){
+						$.ajax({
+							method: 'POST',
+							url: 'renamefolder',
+							data: {
+								oldFolderName: oldFolderName,
+								newFolderName: nameNode.text()
 							},
-							200: function(){
-								oldFolderName = nameNode.innerText;
+							statusCode: {
+								500: function(){
+									alert('failed');
+									location.reload();
+								},
+								200: function(){
+									location.reload();
+								},
+								300: function(){
+									alert('Folder Already Exists with this name.');
+									location.reload();
+								}
 							}
-						}
-					})
+						})
+					}
+				} else {
+					return;
 				}
 			}
 		})
@@ -172,8 +213,26 @@
 	}
 
 	function deleteFolder(event){
-		var folderName = event.target.parentNode.children[2].innerText;
+		var folderName = $(event.target.parentNode.children[2]).text();
+		$('#confirm-delete-modal').attr('folder', folderName);
+	}
 
+	function confirmedDelete(){
+		var folderName = $('#confirm-delete-modal').attr('folder');
+		$.ajax({
+			method: "DELETE",
+			url: 'deletefolder',
+			data: {
+				folderName: folderName
+			},
+			statusCode: {
+				200: function(){
+					location.reload();
+				}
+			}
+
+		})
+		
 	}
 
 	function getFolderContents (event){
@@ -196,9 +255,9 @@
 			currentFolder.text(foldername);
 			$('.breadcrumb').append(currentFolder);
 
-			$('#btnModal').toggleClass('hide-create-folder');
-			$('#fileForm').toggleClass('hide-form');
-
+			$('#btnModal').toggleClass('hide');
+			$('#fileForm').toggleClass('hide');
+			$('#importbtnModal').toggleClass('hide');
 			folderData.map(item=>{
 				var div = $('<div></div>').addClass('item').click(handleItemClick).text(item.displayName);
 				var img = $('<img>').addClass('set image class here');
@@ -210,7 +269,7 @@
 		});
 	}
 
-	$('#fileForm').submit(function(e){
+	$('#fileForm').on('submit', function(e){
 		e.preventDefault();
 		
 		$(this).ajaxSubmit({
@@ -219,7 +278,13 @@
 			},
 			contentType: 'application/json',
       success: function(response){
-        console.log('image uploaded and form submitted');     
+				var item = (response);
+				console.log(item);    
+				var div = $('<div></div>').addClass('item').click(handleItemClick).text(item.displayName);
+				var img = $('<img>').addClass('set image class here');
+				img.attr('src', `/uploads/${userFolder}/${foldername}/${item._id}`);
+				div.append(img);
+				$('#folder-container').append(div); 
        }
 		})
 
@@ -233,6 +298,38 @@
 		setTimeout(() => {
 			$('#folderCreateName').focus();
 		}, 500);
+	})
+
+	$('#btnSendImportRequest').on('click', function(){
+		$("#errEmailValidation").css('display', 'none');
+		var importFrom = $('#inputImportFrom').val();
+		
+		var data = {
+			importFromUser: importFrom
+		}
+		$.ajax({
+			method: "POST",
+			url: '/sendimportrequest',
+			data: data,
+			statusCode: {
+				400: function(){
+					console.log("Email validation failed");
+					$("#errEmailValidation").css('display', 'block');
+				},
+				501: function(){
+
+				}
+			}
+			
+		})
+		.done(function(response){
+			if(response.err){
+				alert(`Error: ${response.err}`);
+			} else {
+				$("#import-modal").modal('hide');
+				alert("Request Sent");
+			}
+		})
 	})
 
 </script>

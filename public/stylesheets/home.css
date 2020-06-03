@@ -5,11 +5,8 @@
   cursor: pointer;
 }
 
-.hide-form {
-  display: none;
-}
 
-.hide-create-folder {
+.hide {
   display: none;
 }
 
@@ -29,4 +26,10 @@
   height: 50px;
   width: 100%;
   border: 1px solid grey;
+}
+
+.my-modal-footer {
+  text-align: center;
+  margin: 0 auto;
+  padding: 4px;
 }

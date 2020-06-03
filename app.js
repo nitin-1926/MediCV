@@ -38,7 +38,9 @@ app.use(passport.session());
 
 const userSchema = new mongoose.Schema({
   name: String,
-  email: String,
+  username: String,
+  recievedRequests: [{ from: String, status: String}],//  status: (accepted), (rejected), (none) -> not responded.
+  sentRequests: [{to: String, status: String}], 
   uploads: [ {folderName: String, contents: [{ _id: String, displayName: String}]} ],
   password: String,
   verified: Boolean,
@@ -87,8 +89,6 @@ function authenticateUser(req, res, next){
   }
 }
 
-
-
 //  Middleware  //
 app.all("*", authenticateUser);
 
@@ -131,7 +131,7 @@ app.post("/login", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
-  User.register({username: req.body.username}, req.body.password, function(err, user) {
+  User.register({username: req.body.username.trim().toLowerCase()}, req.body.password, function(err, user) {
     if (err) {
       if(err.name =="UserExistsError"){
         passport.authenticate("local")(req, res, function(){
@@ -161,6 +161,37 @@ app.get("/home", (req, res) => {
       res.render("home", {data: data.uploads, user: `${req.user.id}`});
     }
   })
+});
+
+//  Create User Folder if does not exists...
+function createUserFolder(id){
+  var dir = __dirname + '/public/uploads/' + id;
+  if (!fs.existsSync(dir)){
+    fs.mkdirSync(dir);
+  }
+  pwd = '/uploads/' + id;  //  set pwd to serve static files
+}
+
+app.post('/createfolder', (req, res)=>{
+  var name = req.body.folderName.trim();
+  var dir = __dirname + '/public/uploads/' + req.user.id + '/' + name;
+  if (!fs.existsSync(dir)){
+    try {
+      fs.mkdirSync(dir);
+    } catch (error) {
+      console.log(error);
+      return res.sendStatus(507);
+    }
+    User.findOneAndUpdate({ _id:req.user.id }, 
+      {$push: {uploads: {folderName: name, contents: []}}}, (err)=>{
+        if(err){
+          console.log(err);
+        }
+      });
+    res.sendStatus(200);
+  } else {
+    return res.sendStatus(300);
+  }
 });
 
 app.post('/home/:folderName', (req, res)=>{
@@ -215,54 +246,108 @@ app.post('/uploadfile', multer(multerConf).single('photo'), (req, res)=>{
       if(err){
         console.log(err);
       } else {
-        res.send("OK");
+        res.send({displayName: req.body.fileName, _id: req.file.filename});
       }
     }
   );
 })
 
 app.post('/renamefolder', (req, res)=>{
+  var oldName = req.body.oldFolderName.trim();
+  var newName = req.body.newFolderName.trim();
+  var oldDir = __dirname + '/public/uploads/' + req.user.id + '/' + oldName;
+  var newDir = __dirname + '/public/uploads/' + req.user.id + '/' + newName;
+
+  if(!fs.existsSync(newDir)){
+    User.updateOne(
+      {_id: req.user.id, "uploads.folderName": oldName },
+      { $set: { "uploads.$.folderName": newName } },
+      (err, data)=>{
+        if(err){
+          console.log(err);
+          res.sendStatus(500);
+        } else {
+          fs.rename(oldDir, newDir, function(err){
+            if(err){
+              console.log(err);
+              return res.sendStatus(500);
+            } else {
+              return res.sendStatus(200);
+            }
+          });
+        }
+      }
+    )
+  } else {
+    return res.sendStatus(300);
+  }
+
+});
+
+app.delete('/deletefolder', (req, res)=>{
+  var dir = __dirname + '/public/uploads/' + req.user.id + '/' + req.body.folderName;
   User.updateOne(
-    {_id: req.user.id, "uploads.folderName": req.body.oldFolderName },
-    { $set: { "uploads.$.folderName": req.body.newFolderName } },
+    { _id: req.user.id},
+    { $pull: { uploads: { folderName: req.body.folderName} } },
     (err, data)=>{
       if(err){
         console.log(err);
-        res.sendStatus(500);
+        res.send(err.message);
       } else {
+        console.log(data);
+        fs.rmdirSync(dir, { recursive: true });
         res.sendStatus(200);
       }
     }
   )
 })
 
-//  Create User Folder if does not exists...
-function createUserFolder(id){
-  var dir = __dirname + '/public/uploads/' + id;
-  if (!fs.existsSync(dir)){
-    fs.mkdirSync(dir);
+app.post('/sendimportrequest', (req, res)=>{
+  var importFrom = req.body.importFromUser.trim().toLowerCase();
+  if(importFrom == req.user.username){
+    return res.send({err: "You Cannot Send Request to Yourself. TY ❤️"})
   }
-  pwd = '/uploads/' + id;  //  set pwd to serve static files
-}
-
-app.post('/createfolder', (req, res)=>{
-  var dir = __dirname + '/public/uploads/' + req.user.id + '/' + req.body.folderName;
-  if (!fs.existsSync(dir)){
-    try {
-      fs.mkdirSync(dir);
-    } catch (error) {
-      console.log(error);
-      return res.sendStatus(507);
+  const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  if(re.test(importFrom)){
+    var request = {
+      from: req.user.username,
+      status: 'none'
     }
-    User.findOneAndUpdate({ _id:req.user.id }, 
-      {$push: {uploads: {folderName: req.body.folderName, contents: []}}}, (err)=>{
-        if(err){
-          console.log(err);
+    User.updateOne(
+      { username: importFrom },
+      { $push: { recievedRequests: request } }
+    )
+    .then(function(data){
+      if(data.n == 0){
+        return res.send({err: "No User"});
+      } else{
+        var request = {
+          to: importFrom,
+          status: 'none'
         }
-      });
-    res.sendStatus(200);
+        User.updateOne(
+          { _id: req.user.id },
+          { $push: { sentRequests: request } }
+        )
+        .then(function(data){
+          if(data.n == 0){
+            console.log("DB Inconsistent");
+            return res.send({err: "Could not process Request"});
+          }
+          return res.sendStatus(200);
+        })
+        .catch((err)=>{
+          console.log(err);
+          throw err;
+        })
+      }
+    })
+    .catch(function(err){
+      console.log(err);
+      throw err;
+    })
   } else {
-    return res.sendStatus(300);
+    return res.sendStatus(400);
   }
 });
 
