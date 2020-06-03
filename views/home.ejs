@@ -79,6 +79,12 @@
 			</ol>
 		</nav>
 
+		<% if(requests.length > 0){ %>
+			<% requests.map(request=>{ %>
+				<p> You have an incoming request from: <%=request.from%> </p>
+			<% }) %>
+		<% } %>
+
 		<button id='importbtnModal' type="button" class="btn btn-primary btn-sm addfolder ml-3" data-toggle="modal" data-target="#import-modal">
 			<i class="fa fa-exchange mr-2"></i>Import
 		</button>
