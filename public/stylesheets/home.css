@@ -27,7 +27,12 @@
   width: 100%;
   border: 1px solid grey;
 }
-
+.moreOptionsDelete{
+  color: red;
+}
+.moreOptionsRename{
+  color: #8B008B;
+}
 .my-modal-footer {
   text-align: center;
   margin: 0 auto;
