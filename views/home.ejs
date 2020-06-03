@@ -58,15 +58,15 @@
 			</div>
 		</div>
 
-		<div class="modal fade" id="confirm-delete-modal" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal fade" id="confirm-delete-modal" tabindex="-1" role="dialog" aria-hidden="true"">
 			<div class="modal-dialog modal-sm modal-dialog-centered" role="document">
 				<div class="modal-content">
 					<div class="modal-body">
 						<b>Are you sure you want to delete this folder</b>
 					</div>
 					<div class="modal-footer my-modal-footer">
-						<button class="btn btn-success" onclick="confirmedDelete()" type="button">Yes</button>
-						<button class="btn btn-danger" data-dismiss="modal" type="button">No</button>
+						<button style="width: 50px;" class="btn btn-success btn-sm" onclick="confirmedDelete()" type="button">Yes</button>
+						<button style="width: 50px;" class="btn btn-danger btn-sm" data-dismiss="modal" type="button">No</button>
 						<div id="err007" style="display: none;color: red;"><b>Error</b></div>
 					</div>
 				</div>
@@ -79,11 +79,19 @@
 			</ol>
 		</nav>
 
-		<% if(requests.length > 0){ %>
-			<% requests.map(request=>{ %>
-				<p> You have an incoming request from: <%=request.from%> </p>
-			<% }) %>
-		<% } %>
+		<!-- <% if(requests.length > 0){ %>
+			<% requests.map(request=>{ %> --> 
+				<div class="mb-2 text-center" style="background-color: #FFAE5E; margin-top: -2%;padding-bottom: 10px;">
+					<h4 style="padding-top: 10px; font-size: 22px; font-family:'Arial Narrow';letter-spacing: 0.8px;">
+						<i class="fa fa-exclamation-triangle"></i> 
+						You have an incoming import request from <%=request.from%>
+						<i class="fa fa-exclamation-triangle"></i>
+					</h4>
+					<button style="width: 80px;" class="btn btn-success btn-sm">Accept</button>
+					<button class="btn btn-danger btn-sm">Deny</button>
+				</div>
+			<!-- <% }) %>
+		<% } %> -->
 
 		<button id='importbtnModal' type="button" class="btn btn-primary btn-sm addfolder ml-3" data-toggle="modal" data-target="#import-modal">
 			<i class="fa fa-exchange mr-2"></i>Import
@@ -102,7 +110,6 @@
 						</span><br>
 						<span class="folderName"><%= folder.folderName %></span><br>
 						<i onclick="renameFolder(event)" folder='<%=folder.folderName%>' class="fa fa-pencil moreOptionsRename"></i>
-						<!-- <i onclick="deleteFolder(event)" data-target="#confirm-delete-modal" class="fa fa-trash moreOptionsDelete ml-2"></i> -->
 						<i onclick="deleteFolder(event)" folder="<%=folder.folderName%>" class="fa fa-trash moreOptionsDelete ml-2"></i>
 					</div>
 				<% }) %>
