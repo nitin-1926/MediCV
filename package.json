@@ -11,6 +11,7 @@
     "mongoose": "^5.9.10",
     "mongoose-findorcreate": "^3.0.0",
     "multer": "^1.4.2",
+    "ncp": "^2.0.0",
     "passport": "^0.4.1",
     "passport-local": "^1.0.0",
     "passport-local-mongoose": "^6.0.1",

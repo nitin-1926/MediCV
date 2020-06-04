@@ -15,7 +15,7 @@
 
 			<form class="hide" id="fileForm" action="/uploadfile" method="post" enctype="multipart/form-data">
 				<input type="file" id='inputUploadPic' name="photo" />
-				<input type="text" id="filename" name='fileName'>
+				<input type="text" required id="filename" name='fileName'>
 				<input type="submit" id="submitFileForm">
 			</form>
 
@@ -87,8 +87,10 @@
 						You have an incoming import request from <%=request.from%>
 						<i class="fa fa-exclamation-triangle"></i>
 					</h4>
-					<button style="width: 80px;" class="btn btn-success btn-sm">Accept</button>
-					<button class="btn btn-danger btn-sm">Deny</button>
+					<div id="<%=request._id%>">
+						<button style="width: 80px;" onclick="handleRequest(event)" class="btn btn-success btn-sm" >Accept</button>
+						<button onclick="handleRequest(event)" style="width: 80px;" class="btn btn-danger btn-sm">Deny</button>
+					</div>
 				</div>
 			<!-- <% }) %>
 		<% } %> -->
@@ -305,6 +307,23 @@
 
 	function handleItemClick(){
 		console.log("handleItemClick Triggerred");
+	}
+
+	function handleRequest(event){
+		$.ajax({
+			method: "POST",
+			url: 'handlerequest',
+			data: {
+				id : event.currentTarget.parentNode.id,
+				status: event.currentTarget.innerText == 'Accept'? 'accepted' : 'rejected'
+			}
+		})
+		.done(function(response){
+			if(response.err){
+				alert("Request could not be processed");
+			}
+		});
+	
 	}
 
 	$('#btnModal').on('click', ()=>{

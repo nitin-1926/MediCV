@@ -8,6 +8,7 @@ const passport = require("passport");
 const passportLocalMongoose = require('passport-local-mongoose');
 const multer = require('multer');
 const https = require('https');
+const ncp = require('ncp').ncp;
 // const findOrCreate = require('mongoose-findorcreate');
 const fs = require('fs');
 
@@ -42,6 +43,7 @@ const userSchema = new mongoose.Schema({
   recievedRequests: [{ from: String, status: String}],//  status: (accepted), (rejected), (none) -> not responded.
   sentRequests: [{to: String, status: String}], 
   uploads: [ {folderName: String, contents: [{ _id: String, displayName: String}]} ],
+  acceptedRequest: String,
   password: String,
   verified: Boolean,
   dateCreated: Date,
@@ -49,14 +51,7 @@ const userSchema = new mongoose.Schema({
 
 });
 
-// const uploadSchema = new mongoose.Schema({
-//   fileName: String,
-//   folder: {type: mongoose.Types.ObjectId, ref: User}
-// });
-// const Upload = mongoose.model('uploads', uploadSchema);
-
 userSchema.plugin(passportLocalMongoose);
-// userSchema.plugin(findOrCreate);
 
 const User = mongoose.model("users", userSchema);
 
@@ -158,7 +153,14 @@ app.get("/home", (req, res) => {
     if(err){
       console.log(err);
     } else {
-      res.render("home", {data: data.uploads, user: `${req.user.id}`, requests: req.user.recievedRequests.filter( request => request.status == 'none') });
+      User.findOne({username: req.user.acceptedRequest})
+      .then(d=>{
+        res.render("home", {data: data.uploads, user: `${req.user.id}`, requests: req.user.recievedRequests.filter( request => request.status == 'none'), requestedFolders: d!=null ? d.uploads :null });
+      })
+      .catch(err=>{
+        console.log(err);
+        throw err;
+      })
     }
   })
 });
@@ -194,9 +196,7 @@ app.post('/createfolder', (req, res)=>{
   }
 });
 
-app.post('/home/:folderName', (req, res)=>{
-  // console.log(req.path);
-  
+app.post('/home/:folderName', (req, res)=>{  
   User.findById(req.user.id, (err, data)=>{
     if(err){
       console.log(err);
@@ -294,7 +294,6 @@ app.delete('/deletefolder', (req, res)=>{
         console.log(err);
         res.send(err.message);
       } else {
-        console.log(data);
         fs.rmdirSync(dir, { recursive: true });
         res.sendStatus(200);
       }
@@ -313,42 +312,161 @@ app.post('/sendimportrequest', (req, res)=>{
       from: req.user.username,
       status: 'none'
     }
-    User.updateOne(
-      { username: importFrom },
-      { $push: { recievedRequests: request } }
-    )
-    .then(function(data){
-      if(data.n == 0){
-        return res.send({err: "No User"});
-      } else{
-        var request = {
-          to: importFrom,
-          status: 'none'
-        }
-        User.updateOne(
-          { _id: req.user.id },
-          { $push: { sentRequests: request } }
-        )
-        .then(function(data){
-          if(data.n == 0){
-            console.log("DB Inconsistent");
-            return res.send({err: "Could not process Request"});
-          }
-          return res.sendStatus(200);
-        })
-        .catch((err)=>{
+    User.findOne({username: request.from},
+      (err, data)=>{
+        if(err){
           console.log(err);
-          throw err;
-        })
-      }
-    })
-    .catch(function(err){
-      console.log(err);
-      throw err;
-    })
+        } else {
+          if(data.sentRequests.length == 0){
+            User.updateOne(
+              { username: importFrom },
+              { $push: { recievedRequests: request } }
+            )
+            .then(function(data){
+              if(data.n == 0){
+                return res.send({err: "No User"});
+              } else{
+                var request = {
+                  to: importFrom,
+                  status: 'none'
+                }
+                User.updateOne(
+                  { _id: req.user.id },
+                  { $push: { sentRequests: request } }
+                )
+                .then(function(data){
+                  if(data.n == 0){
+                    console.log("DB Inconsistent");
+                    return res.send({err: "Could not process Request"});
+                  }
+                  return res.sendStatus(200);
+                })
+                .catch((err)=>{
+                  console.log(err);
+                  throw err;
+                })
+              }
+            })
+            .catch(function(err){
+              console.log(err);
+              throw err;
+            });
+          } else {
+            return res.send({err: "You have one pending request"});
+          }
+        }
+      });
   } else {
     return res.sendStatus(400);
   }
+});
+
+app.post('/handlerequest', (req, res)=>{
+  var requestId = req.body.id;
+  var response = req.body.status;
+  // var dir = __dirname + '/public/uploads/' + req.user.id + '/' + oldName;
+
+  var from = null;
+
+  User.find({_id: req.user.id, "recievedRequests._id": requestId},
+  { "recievedRequests.$.from": 1 },
+  (err, data)=>{
+    if(err){
+      console.log(err);
+    } else {
+      from = data[0].recievedRequests[0].from;
+      User.updateOne({_id: req.user.id, "recievedRequests._id": requestId },
+      { $set: {"recievedRequests.$.status": response} } 
+      )
+      .then(data=>{
+        if(data.n == 0){
+          console.log("Some Error Occurred");
+          return res.send("Failed");
+        } else {
+          if(response == 'accepted'){
+            User.updateOne({ username: from },
+            {$set: { "sentRequests": [], acceptedRequest: req.user.username }},
+            (err)=>{
+              if(err){
+                console.log(err);
+                return res.send({err: "Error"}); 
+              } else {
+                return res.send("OK");
+              }
+            })
+          } else {
+            User.updateOne({ username: from },
+              {$set: { "sentRequests": [] }},
+              (err)=>{
+                if(err){
+                  console.log(err);
+                  return res.send({err: "Error"}); 
+                } else {
+                  return res.send("OK");
+                }
+              })
+          }
+
+        }
+      })
+      .catch(err=>{
+        console.log(err);
+        throw err;
+      })
+    }
+  })
+
+
+});
+
+app.post("/importselectedfolders", (req, res)=>{
+  // folders in req.body.folder
+  var target = __dirname + '/public/uploads/' + req.user.id + '/' + req.body.folder;
+  var src = null;
+  User.findOne({username: req.user.acceptedRequest, uploads: {$elemMatch: {folderName: req.body.folder}} },
+    {"uploads.$.folderName": 1})
+  .then(data=>{
+    if(data.uploads.length == 0){
+      return res.send({err: "Error"});
+    } else {
+      const folder = {
+        folderName: data.uploads[0].folderName,
+        contents : data.uploads[0].contents
+      }
+      
+      src = __dirname + '/public/uploads/' + data._id + '/' + req.body.folder;
+      if (!fs.existsSync(target)){
+        try {
+          fs.mkdirSync(target);
+        } catch (error) {
+          console.log(error);
+          throw error;
+        }
+        ncp(src, target, (err)=>{
+          if(err){
+            console.log(err);
+            return res.send({err: "Could not create Folder on server"});
+          } else {
+            User.updateOne({_id: req.user._id},
+            {$push: {uploads: folder}}, (err)=>{
+              if(err){
+                console.log(err);
+              } else{
+                return res.redirect('/home');
+              }
+            });
+          }
+        })
+      } else {
+        return res.send({err: "Folder with same name already exists."});
+      }
+    }
+    
+  })
+  .catch(err=>{
+    console.log(err);
+    throw err;
+  })
 });
 
 app.get('/logout', (req, res)=>{
