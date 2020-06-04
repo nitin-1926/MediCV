@@ -4,9 +4,34 @@
   <div class="header-navbar">
     <nav class="navbar navbar-light nav-header" >
       <a class="navbar-brand" href="/login/"> <strong style='font-family: Alegreya Sans, sans-serif'> MediCV</strong></a>
+      <span class="badge badge-primary" style="margin-right: -70%;">Bro show name here</span>
+      <button class="btn btn-warning"  data-toggle="modal" data-target="#confirm-logout-modal">Logout</button>
     </nav>
   </div>
 
+  <div class="modal fade" id="confirm-logout-modal" tabindex="-1" role="dialog" aria-hidden="true"">
+    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-body">
+          <b>Are you sure you want to logout?</b>
+        </div>
+        <div class="modal-footer my-modal-footer">
+          <button style="width: 50px;" class="btn btn-success btn-sm" onclick="confirmedLogout()" type="button">Yes</button>
+          <button style="width: 50px;" class="btn btn-danger btn-sm" data-dismiss="modal" type="button">No</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function confirmedLogout(){
+      $.ajax({
+        method: "GET",
+        url: "logout",
+      });
+      location.reload();
+    }
+  </script>
 
 
 
