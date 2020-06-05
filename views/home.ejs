@@ -6,8 +6,13 @@
 />
 <link rel="stylesheet" href="/stylesheets/styles.css">
 <link rel="stylesheet" href="/stylesheets/home.css">
-<link rel="stylesheet" href="/css/style.css">
 <link rel="stylesheet" href="/css/font-awesome.min.css">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+
 <div class="wrapper">
 	<div class="container">
 		<br>
@@ -28,7 +33,7 @@
 					<div class="modal-body">
 						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
 						<label for="folderName" ></label>
-						<b>Enter the Name of The Folder (Avoid Spaces)</b>
+						<b>Enter the Name of The Folder</b>
 						<input class="mt-4 inputModal"style="padding: 5px;" type="textarea" name="folderName" id='folderCreateName' placeholder="Name...">
 					</div>
 					<div class="modal-footer">
@@ -79,8 +84,8 @@
 			</ol>
 		</nav>
 
-		<!-- <% if(requests.length > 0){ %>
-			<% requests.map(request=>{ %> --> 
+		<% if(requests.length > 0){ %>
+			<% requests.map(request=>{ %> 
 				<div class="mb-2 text-center" style="background-color: #FFAE5E; margin-top: -2%;padding-bottom: 10px;">
 					<h4 style="padding-top: 10px; font-size: 22px; font-family:'Arial Narrow';letter-spacing: 0.8px;">
 						<i class="fa fa-exclamation-triangle"></i> 
@@ -92,8 +97,15 @@
 						<button onclick="handleRequest(event)" style="width: 80px;" class="btn btn-danger btn-sm">Deny</button>
 					</div>
 				</div>
-			<!-- <% }) %>
-		<% } %> -->
+			<% }) %>
+		<% } %>
+
+		<div class="dropdown" style="float: right;">
+			<button class="dropbtn btn btn-primary btn-sm ml-3">Dropdown <i class="fa fa-caret-down ml-2"></i></button>
+			<div class="dropdown-content">
+			  <a>Folders</a>
+			</div>
+		</div> 
 
 		<button id='importbtnModal' type="button" class="btn btn-primary btn-sm addfolder ml-3" data-toggle="modal" data-target="#import-modal">
 			<i class="fa fa-exchange mr-2"></i>Import
@@ -108,7 +120,7 @@
 				<% data.map( folder => { %>
 					<div id='<%=folder.folderName%>' class="folder mt-5 ml-5" style="text-align: center;" >
 						<span onclick="getFolderContents(event)">
-							<i class="fa fa-folder fa-5x" style="color: inherit;"></i>
+							<i class="fa fa-folder fa-5x folder-icon"></i>
 						</span><br>
 						<span class="folderName"><%= folder.folderName %></span><br>
 						<i onclick="renameFolder(event)" folder='<%=folder.folderName%>' class="fa fa-pencil moreOptionsRename"></i>
@@ -167,8 +179,6 @@
 			}
 		})
 		.done(function(){
-			// var div = $(`<div></div>`).addClass('folder').click(getFolderContents).text(folderName);
-			// $('#folder-container').append(div);
 			location.reload();
 		});
 	}
