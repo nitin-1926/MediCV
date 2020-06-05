@@ -138,8 +138,8 @@ app.post("/register", (req, res) => {
       }
     } else {
       passport.authenticate("local")(req, res, function(){
-        createUserFolder(req.user.id);
-        pwd = `/uploads/${req.user.id}/`;
+        createUserFolder(req.user._id);
+        pwd = `/uploads/${req.user._id}/`;
         res.sendStatus(200);
       });
     }
