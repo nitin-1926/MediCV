@@ -284,10 +284,9 @@
 			var currentFolder = $('<li>').attr({'class': 'breadcrumb-item'});
 			currentFolder.text(foldername);
 			$('.breadcrumb').append(currentFolder);
-
 			$('#btnModal').toggleClass('hide');
 			$('#fileForm').toggleClass('hide');
-			$('#importbtnModal').toggleClass('hide');
+			$('#importbtnModal').css('display', 'none')
 			folderData.map(item=>{
 				var div = $('<div></div>').addClass('item').click(handleItemClick).text(item.displayName);
 				var img = $('<img>').addClass('set image class here');
