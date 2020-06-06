@@ -8,7 +8,7 @@
   <div class="header-navbar">
     <nav class="navbar navbar-light nav-header" >
       <span style="font-size: 2em;font-weight:600;color: #007BFF;">MediCV <i style="color: red;" class="fa fa-plus fa-sm"></i></span>
-      <h5><span class="badge badge-primary badge-lg">Bro show name here</span></h5>
+      <h5><span class="badge badge-primary badge-lg"><%=username%></span></h5>
       <button class="btn btn-danger btn-sm mr-5"  data-toggle="modal" data-target="#confirm-logout-modal"><i class="fa fa-sign-out"></i> Logout</button>
     </nav>
   </div>
@@ -32,8 +32,10 @@
       $.ajax({
         method: "GET",
         url: "logout",
-      });
-      location.reload();
+      })
+      .done(()=>{
+        location.href = "/";
+      })
     }
   </script>
 
