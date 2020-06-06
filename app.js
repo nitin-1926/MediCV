@@ -452,7 +452,17 @@ app.post("/importselectedfolder", (req, res)=>{
               if(err){
                 console.log(err);
               } else{
-                return res.redirect('/home');
+                User.updateOne({_id: req.user._id},
+                  {$set: {acceptedRequest: null}},
+                  (err)=>{
+                    if(err){
+                      console.log(err);
+                      return res.send({err: "Error"});
+                    } else {
+                      return res.redirect('/home');
+                    }
+                  }
+                )
               }
             });
           }

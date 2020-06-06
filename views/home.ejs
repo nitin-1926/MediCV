@@ -45,7 +45,7 @@
 			</div>
 		</div>
 
-		<div class="modal" id="import-modal" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal fade" id="import-modal" tabindex="-1" role="dialog" aria-hidden="true">
 			<div class="modal-dialog modal-dialog-scrollable" role="document">
 				<div class="modal-content">
 					<div class="modal-body">
@@ -100,16 +100,17 @@
 			<% }) %>
 		<% } %>
 
-		<div class="dropdown" style="float: right;">
-			<button class="dropbtn btn btn-primary btn-sm ml-3">Select Folders to import<i class="fa fa-caret-down ml-2"></i></button>
-			<% if(requestedFolders!= null){ %>
-				<% requestedFolders.map(folder =>{ %>
-					<div class="dropdown-content">
-				  		<a onclick="importSelectedFolder(event)"><%=folder.folderName%></a>
-					</div> 
-				<% }) %>
-			<% } %>
-		</div> 
+		
+		<% if(requestedFolders!= null){ %>
+			<div class="dropdown" style="float: right;">
+				<button class="dropbtn btn btn-primary btn-sm ml-3">Select Folders to import<i class="fa fa-caret-down ml-2"></i></button>
+				<div class="dropdown-content">
+					<% requestedFolders.map(folder =>{ %>
+						<a onclick="importSelectedFolder(event)"><%=folder.folderName%></a>
+					<% }) %>
+				</div> 
+			</div> 
+		<% } %>
 
 		<button id='importbtnModal' type="button" class="btn btn-primary btn-sm addfolder ml-3" data-toggle="modal" data-target="#import-modal">
 			<i class="fa fa-exchange mr-2"></i>Import
@@ -375,6 +376,7 @@
 			} else {
 				$("#import-modal").modal('hide');
 				alert("Request Sent");
+				location.reload();
 			}
 		})
 	})
