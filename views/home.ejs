@@ -11,7 +11,8 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.3.0/jquery.form.min.js" integrity="sha256-3TKcZElR88BBIA6CeePJAGOsW1yIYf4lP8pI333YuZw=" crossorigin="anonymous"></script>
 
 <div class="wrapper">
 	<div class="container">
@@ -107,6 +108,9 @@
 					<% requestedFolders.map(folder =>{ %>
 						<a onclick="importSelectedFolder(event)"><%=folder.folderName%></a>
 					<% }) %>
+					<% if(requestedFolders.length == 0){ %>
+						<a style="color: red">No Folders</div>
+					<% } %>
 				</div> 
 			</div> 
 		<% } %>
@@ -281,7 +285,7 @@
 			var currentFolder = $('<li>').attr({'class': 'breadcrumb-item'});
 			currentFolder.text(foldername);
 			$('.breadcrumb').append(currentFolder);
-			$('#fileForm').toggleClass('hide');
+			$('#fileForm').removeClass('hide');
 			$('#importbtnModal').css('display', 'none')
 			$('#btnModal').css('display','none')
 			folderData.map(item=>{
@@ -297,7 +301,7 @@
 
 	$('#fileForm').on('submit', function(e){
 		e.preventDefault();
-		
+		console.log($(this));
 		$(this).ajaxSubmit({
 			data: {
 				foldername: foldername,
