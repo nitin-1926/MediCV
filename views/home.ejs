@@ -26,7 +26,6 @@
 
 		</div>
 		
-
 		<div class="modal fade" id="newfolder-modal" tabindex="-1" role="dialog" aria-hidden="true">
 			<div class="modal-dialog modal-dialog-scrollable" role="document">
 				<div class="modal-content">		
@@ -260,9 +259,7 @@
 					location.reload();
 				}
 			}
-
 		})
-		
 	}
 
 	function getFolderContents (event){
@@ -284,9 +281,9 @@
 			var currentFolder = $('<li>').attr({'class': 'breadcrumb-item'});
 			currentFolder.text(foldername);
 			$('.breadcrumb').append(currentFolder);
-			$('#btnModal').toggleClass('hide');
 			$('#fileForm').toggleClass('hide');
 			$('#importbtnModal').css('display', 'none')
+			$('#btnModal').css('display','none')
 			folderData.map(item=>{
 				var div = $('<div></div>').addClass('item').click(handleItemClick).text(item.displayName);
 				var img = $('<img>').addClass('set image class here');
