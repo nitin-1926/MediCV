@@ -155,7 +155,7 @@ app.get("/home", (req, res) => {
     } else {
       User.findOne({username: req.user.acceptedRequest})
       .then(d=>{
-        res.render("home", {data: data.uploads, user: `${req.user.id}`, requests: req.user.recievedRequests.filter( request => request.status == 'none'), requestedFolders: d!=null ? d.uploads :null });
+        res.render("home", {data: data.uploads,username: data.username , user: `${req.user.id}`, requests: req.user.recievedRequests.filter( request => request.status == 'none'), requestedFolders: d!=null ? d.uploads :null });
       })
       .catch(err=>{
         console.log(err);
@@ -419,7 +419,7 @@ app.post('/handlerequest', (req, res)=>{
 
 });
 
-app.post("/importselectedfolders", (req, res)=>{
+app.post("/importselectedfolder", (req, res)=>{
   // folders in req.body.folder
   var target = __dirname + '/public/uploads/' + req.user.id + '/' + req.body.folder;
   var src = null;
@@ -452,7 +452,17 @@ app.post("/importselectedfolders", (req, res)=>{
               if(err){
                 console.log(err);
               } else{
-                return res.redirect('/home');
+                User.updateOne({_id: req.user._id},
+                  {$set: {acceptedRequest: null}},
+                  (err)=>{
+                    if(err){
+                      console.log(err);
+                      return res.send({err: "Error"});
+                    } else {
+                      return res.redirect('/home');
+                    }
+                  }
+                )
               }
             });
           }
@@ -471,7 +481,7 @@ app.post("/importselectedfolders", (req, res)=>{
 
 app.get('/logout', (req, res)=>{
   req.logOut();
-  res.redirect('/');
+  res.send("OK");
 });
 
 app.listen(PORT, () => {

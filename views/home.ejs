@@ -100,12 +100,17 @@
 			<% }) %>
 		<% } %>
 
-		<div class="dropdown" style="float: right;">
-			<button class="dropbtn btn btn-primary btn-sm ml-3">Dropdown <i class="fa fa-caret-down ml-2"></i></button>
-			<div class="dropdown-content">
-			  <a>Folders</a>
-			</div>
-		</div> 
+		
+		<% if(requestedFolders!= null){ %>
+			<div class="dropdown" style="float: right;">
+				<button class="dropbtn btn btn-primary btn-sm ml-3">Select Folders to import<i class="fa fa-caret-down ml-2"></i></button>
+				<div class="dropdown-content">
+					<% requestedFolders.map(folder =>{ %>
+						<a onclick="importSelectedFolder(event)"><%=folder.folderName%></a>
+					<% }) %>
+				</div> 
+			</div> 
+		<% } %>
 
 		<button id='importbtnModal' type="button" class="btn btn-primary btn-sm addfolder ml-3" data-toggle="modal" data-target="#import-modal">
 			<i class="fa fa-exchange mr-2"></i>Import
@@ -279,10 +284,9 @@
 			var currentFolder = $('<li>').attr({'class': 'breadcrumb-item'});
 			currentFolder.text(foldername);
 			$('.breadcrumb').append(currentFolder);
-
 			$('#btnModal').toggleClass('hide');
 			$('#fileForm').toggleClass('hide');
-			$('#importbtnModal').toggleClass('hide');
+			$('#importbtnModal').css('display', 'none')
 			folderData.map(item=>{
 				var div = $('<div></div>').addClass('item').click(handleItemClick).text(item.displayName);
 				var img = $('<img>').addClass('set image class here');
@@ -332,6 +336,7 @@
 			if(response.err){
 				alert("Request could not be processed");
 			}
+			location.reload();
 		});
 	
 	}
@@ -370,9 +375,27 @@
 			} else {
 				$("#import-modal").modal('hide');
 				alert("Request Sent");
+				location.reload();
 			}
 		})
 	})
+
+	function importSelectedFolder(event){
+		var name = $(event.target).text();
+		$.ajax({
+			method: 'POST',
+			data: {
+				folder: name
+			},
+			url: 'importselectedfolder'
+		})
+		.done(response=>{
+			if(response.err){
+				alert("Error: "+ response.err);
+			}
+			location.reload();
+		})
+	}
 
 </script>
 
