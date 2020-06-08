@@ -16,18 +16,8 @@
 
 <div class="wrapper">
 	<div class="container">
-		<br>
-		<div class="float-right">
-
-			<form class="hide" id="fileForm" action="/uploadfile" method="post" enctype="multipart/form-data">
-				<input type="file" id='inputUploadPic' name="photo" />
-				<input type="text" required id="filename" name='fileName'>
-				<input type="submit" id="submitFileForm">
-			</form>
-
-		</div>
-		
-		<div class="modal fade" id="newfolder-modal" tabindex="-1" role="dialog" aria-hidden="true">
+		<br>	
+  	<div class="modal fade" id="newfolder-modal" tabindex="-1" role="dialog" aria-hidden="true">
 			<div class="modal-dialog modal-dialog-scrollable" role="document">
 				<div class="modal-content">		
 					<div class="modal-body">
@@ -122,6 +112,16 @@
 		<button id='btnModal' type="button" class="btn btn-primary btn-sm addfolder" data-toggle="modal" data-target="#newfolder-modal">
 			<i class="fa fa-plus-circle mr-2"></i>Add New Folder
 		</button>
+		
+		<button id="btnSubmit" style="display: none;" onclick="clickSubmit()" class="btn btn-primary btn-sm addfolder ml-3"><i class="fa fa-upload mr-2"></i>Upload</button>
+		<div class="float-right">
+			<form id="fileForm" class="hide" action="/uploadfile" method="post" enctype="multipart/form-data">
+				<input class="inputfile" type="file" id='inputUploadPic' required name="photo" />
+				<input type="text" placeholder="Enter File Name" required id="filename" name='fileName'>
+				<input class="inputfile" id="fileSubmitBtn" type="submit" id="submitFileForm">
+			</form>
+		</div>
+		<button id="btnFile" style="display: none;" onclick="inputFile()" class="btn btn-primary btn-sm addfolder mr-3">Select File</button>
 
 		<div id="folder-container" class="container">
 			<% if(data!= null){ %>
@@ -164,6 +164,20 @@
 	content: "Rename Folder",
 	placement: "left"
 	});
+
+	function inputFile(){
+		$('input[type="file"]').click();
+	}
+
+	function clickSubmit(){
+		$('#fileSubmitBtn').click();
+		$('#btnFile').text("Select File")
+	}
+
+	$('input[type="file"]').change((event)=>{
+		var name = $(event.target.files)[0].name;
+		$('#btnFile').text(name)
+	})
 
 	var foldername = '';
 	var userFolder = <%-JSON.stringify(user)%>;
@@ -286,13 +300,17 @@
 			currentFolder.text(foldername);
 			$('.breadcrumb').append(currentFolder);
 			$('#fileForm').removeClass('hide');
-			$('#importbtnModal').css('display', 'none')
+			$('#importbtnModal').css('display', 'none');
+			$('#btnFile').css('display', 'block');
+			$('#btnSubmit').css('display', 'block');
 			$('#btnModal').css('display','none')
 			folderData.map(item=>{
-				var div = $('<div></div>').addClass('item').click(handleItemClick).text(item.displayName);
-				var img = $('<img>').addClass('set image class here');
-				img.attr('src', `/uploads/${userFolder}/${foldername}/${item._id}`);
-				div.append(img);
+				var div = $('<div></div>').addClass('item');
+				var source = `/uploads/${userFolder}/${foldername}/${item._id}`;
+				$('<img>').addClass('image').attr('src', source)
+				.appendTo($('<a>').attr({'href': source, 'target': '_blank'}).appendTo(div))
+				var span = $('<span></span>').addClass('item-name').html(item.displayName);
+				div.append(span);
 				$('#folder-container').append(div);
 			})
 
@@ -310,11 +328,14 @@
       success: function(response){
 				var item = (response);
 				console.log(item);    
-				var div = $('<div></div>').addClass('item').click(handleItemClick).text(item.displayName);
-				var img = $('<img>').addClass('set image class here');
-				img.attr('src', `/uploads/${userFolder}/${foldername}/${item._id}`);
-				div.append(img);
-				$('#folder-container').append(div); 
+				var div = $('<div></div>').addClass('item');
+				var source = `/uploads/${userFolder}/${foldername}/${item._id}`;
+				$('<img>').addClass('image').attr('src', source)
+				.appendTo($('<a>').attr({'href': source, 'target': '_blank'}).appendTo(div))
+				var span = $('<span></span>').addClass('item-name').html(item.displayName);
+				div.append(span);
+				$('#folder-container').append(div);
+				$('#fileForm')[0].reset();
        }
 		})
 
