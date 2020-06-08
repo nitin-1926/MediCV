@@ -87,7 +87,12 @@
           }
         })
         .done((response)=>{
-          console.log(response);
+            if(response.err){
+                alert(response.err);
+            }else {
+                alert("Email Sent");
+                console.log(response);
+            }
         })
       }
     

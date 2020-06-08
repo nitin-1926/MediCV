@@ -484,33 +484,6 @@ app.get('/forgotpassword', (req, res)=>{
   res.render('forgotpassword');
 });
 
-function sendResetMail(to, token, host){
-  
-  let transporter = nodemailer.createTransport({
-    service: 'gmail',
-    port: 25,
-    auth: {
-      user: process.env.EMAIL,
-      pass: process.env.PASSWORD
-    }
-  });
-  
-  const mailOptions = {
-    to: to,
-    from: 'passwordreset@demo.com',
-    subject: 'Node.js Password Reset',
-    text: 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' + 'Please click on the following link, or paste this into your browser to complete the process:\n\n' + 'http://' + host + '/reset/' + token + '\n\n' + 'If you did not request this, please ignore this email and your password will remain unchanged.\n'
-  };
-    
-  transporter.sendMail(mailOptions, (error, response) => {
-    if(error){
-      console.log(error);
-    } else {
-      console.log("Email Sent");
-    }
-  });
-}
-
 app.post('/sendresetlink', (req, res)=>{
   var username = req.body.username.trim().toLowerCase();
   var token = crypto.randomBytes(48).toString('hex');
@@ -522,8 +495,30 @@ app.post('/sendresetlink', (req, res)=>{
     throw err;
   })
   .then((data)=>{
-    sendResetMail(username, token, req.headers.host);
-    res.send("OK");
+    let transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.PASSWORD
+      }
+    });
+    
+    const mailOptions = {
+      to: username,
+      from: "MediCV Support<passwordreset@medicv.com>",
+      subject: 'MediCV Password Reset',
+      text: 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' + 'Please click on the following link, or paste this into your browser to complete the process:\n\n' + 'http://' + req.headers.host + '/reset/' + token + '\n\n' + 'If you did not request this, please ignore this email and your password will remain unchanged.\n'
+    };
+      
+    transporter.sendMail(mailOptions, (err, response) => {
+      if(err){
+        console.log(err);
+        res.send({err: "Error sending mail"});
+      } else {
+        console.log("Sent");
+        res.send("OK");
+      }
+    });
   })
 });
 
