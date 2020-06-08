@@ -28,7 +28,7 @@ app.use(
 );
 
 
-mongoose.connect("mongodb://localhost:27017/medicvDB", {useNewUrlParser: true, useCreateIndex: true , useUnifiedTopology: true, useFindAndModify: false}, (err)=>{
+mongoose.connect("mongodb+srv://Prabhat-Kadam:"+ process.env.MONGO_PASS +"@cluster0-eq19s.mongodb.net/medicvDB?retryWrites=true&w=majority", {useNewUrlParser: true, useCreateIndex: true , useUnifiedTopology: true, useFindAndModify: false}, (err)=>{
   if(err){
     console.log("DB Connection Error");
   } else {
@@ -501,6 +501,7 @@ app.post('/sendresetlink', (req, res)=>{
 
       let transporter = nodemailer.createTransport({
         service: 'gmail',
+        // port: 587,
         auth: {
           user: process.env.EMAIL,
           pass: process.env.PASSWORD
@@ -568,7 +569,7 @@ app.get('/logout',authenticateUser, (req, res)=>{
   res.send("OK");
 });
 
-app.listen(PORT, () => {
-  console.log("Server Started on " + PORT);
+app.listen(process.env.PORT||PORT, () => {
+  console.log("Server Started on " + process.env.PORT);
 });
 
