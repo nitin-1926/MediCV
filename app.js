@@ -570,6 +570,6 @@ app.get('/logout',authenticateUser, (req, res)=>{
 });
 
 app.listen(process.env.PORT||PORT, () => {
-  console.log("Server Started on " + PORT);
+  console.log("Server Started on " + process.env.PORT);
 });
 

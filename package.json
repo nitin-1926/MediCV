@@ -20,9 +20,6 @@
     "passport-session": "^1.0.2",
     "path": "^0.12.7"
   },
-  "devDependencies": {
-    "nodemon": "^2.0.4"
-  },
   "scripts": {
     "start": "node app.js"
   },
