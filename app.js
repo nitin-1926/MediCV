@@ -569,7 +569,7 @@ app.get('/logout',authenticateUser, (req, res)=>{
   res.send("OK");
 });
 
-app.listen(PORT, () => {
+app.listen(process.env.PORT||PORT, () => {
   console.log("Server Started on " + PORT);
 });
 
