@@ -1,3 +1,4 @@
+require('dotenv').config();
 var express = require("express");
 var app = express();
 var path = require("path");
@@ -9,8 +10,9 @@ const passportLocalMongoose = require('passport-local-mongoose');
 const multer = require('multer');
 const https = require('https');
 const ncp = require('ncp').ncp;
-// const findOrCreate = require('mongoose-findorcreate');
+const nodemailer = require('nodemailer');
 const fs = require('fs');
+const crypto = require('crypto');
 
 const PORT = 3000;
 
@@ -47,7 +49,8 @@ const userSchema = new mongoose.Schema({
   password: String,
   verified: Boolean,
   dateCreated: Date,
-
+  resetPasswordToken: String,
+  resetPasswordExpires: Number
 
 });
 
@@ -72,20 +75,18 @@ passport.deserializeUser(function(id, done) {
 
 function authenticateUser(req, res, next){
   
-  if(req.path==='/' || req.path=='/login' || req.path=='/login/' || req.path=='/register'){
-    return next();
-  } else {
+  
     if(req.isAuthenticated()){
       currentUser = req.user;
       return next();
     } else {
       res.redirect('/login');
     }
-  }
+  
 }
 
 //  Middleware  //
-app.all("*", authenticateUser);
+// app.all("*", authenticateUser);
 
 app.get('/', (req, res)=>{
   res.render('landing');
@@ -148,7 +149,7 @@ app.post("/register", (req, res) => {
   
 });
 
-app.get("/home", (req, res) => {
+app.get("/home", authenticateUser, (req, res) => {
   User.findById(req.user.id, (err, data)=>{
     if(err){
       console.log(err);
@@ -174,7 +175,7 @@ function createUserFolder(id){
   pwd = '/uploads/' + id;  //  set pwd to serve static files
 }
 
-app.post('/createfolder', (req, res)=>{
+app.post('/createfolder', authenticateUser, (req, res)=>{
   var name = req.body.folderName.trim();
   var dir = __dirname + '/public/uploads/' + req.user.id + '/' + name;
   if (!fs.existsSync(dir)){
@@ -196,7 +197,7 @@ app.post('/createfolder', (req, res)=>{
   }
 });
 
-app.post('/home/:folderName', (req, res)=>{  
+app.post('/home/:folderName', authenticateUser, (req, res)=>{  
   User.findById(req.user.id, (err, data)=>{
     if(err){
       console.log(err);
@@ -237,7 +238,7 @@ var multerConf = {
   }
 };
 
-app.post('/uploadfile', multer(multerConf).single('photo'), (req, res)=>{ 
+app.post('/uploadfile', authenticateUser, multer(multerConf).single('photo'), (req, res)=>{ 
 
   User.updateOne(
     {_id: req.user.id, "uploads.folderName": req.body.foldername },
@@ -252,7 +253,7 @@ app.post('/uploadfile', multer(multerConf).single('photo'), (req, res)=>{
   );
 })
 
-app.post('/renamefolder', (req, res)=>{
+app.post('/renamefolder', authenticateUser, (req, res)=>{
   var oldName = req.body.oldFolderName.trim();
   var newName = req.body.newFolderName.trim();
   var oldDir = __dirname + '/public/uploads/' + req.user.id + '/' + oldName;
@@ -284,7 +285,7 @@ app.post('/renamefolder', (req, res)=>{
 
 });
 
-app.delete('/deletefolder', (req, res)=>{
+app.delete('/deletefolder', authenticateUser, (req, res)=>{
   var dir = __dirname + '/public/uploads/' + req.user.id + '/' + req.body.folderName;
   User.updateOne(
     { _id: req.user.id},
@@ -301,7 +302,7 @@ app.delete('/deletefolder', (req, res)=>{
   )
 })
 
-app.post('/sendimportrequest', (req, res)=>{
+app.post('/sendimportrequest', authenticateUser, (req, res)=>{
   var importFrom = req.body.importFromUser.trim().toLowerCase();
   if(importFrom == req.user.username){
     return res.send({err: "You Cannot Send Request to Yourself. TY ❤️"})
@@ -361,7 +362,7 @@ app.post('/sendimportrequest', (req, res)=>{
   }
 });
 
-app.post('/handlerequest', (req, res)=>{
+app.post('/handlerequest', authenticateUser, (req, res)=>{
   var requestId = req.body.id;
   var response = req.body.status;
   // var dir = __dirname + '/public/uploads/' + req.user.id + '/' + oldName;
@@ -419,7 +420,7 @@ app.post('/handlerequest', (req, res)=>{
 
 });
 
-app.post("/importselectedfolder", (req, res)=>{
+app.post("/importselectedfolder", authenticateUser, (req, res)=>{
   // folders in req.body.folder
   var target = __dirname + '/public/uploads/' + req.user.id + '/' + req.body.folder;
   var src = null;
@@ -453,7 +454,7 @@ app.post("/importselectedfolder", (req, res)=>{
                 console.log(err);
               } else{
                 User.updateOne({_id: req.user._id},
-                  {$set: {acceptedRequest: null}},
+                  {$set: {acceptedRequest: undefined}},
                   (err)=>{
                     if(err){
                       console.log(err);
@@ -479,7 +480,85 @@ app.post("/importselectedfolder", (req, res)=>{
   })
 });
 
-app.get('/logout', (req, res)=>{
+app.get('/forgotpassword', (req, res)=>{
+  res.render('forgotpassword');
+});
+
+app.post('/sendresetlink', (req, res)=>{
+  var username = req.body.username.trim().toLowerCase();
+  var token = crypto.randomBytes(48).toString('hex');
+  // var date = new Date()
+  User.updateOne({username: username},
+    {$set: {resetPasswordToken: token, resetPasswordExpires: new Date().getTime()+3600000}})
+  .catch(err=>{
+    console.log(err);
+    throw err;
+  })
+  .then((data)=>{
+    let transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.PASSWORD
+      }
+    });
+    
+    const mailOptions = {
+      to: username,
+      from: "MediCV Support<passwordreset@medicv.com>",
+      subject: 'MediCV Password Reset',
+      text: 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' + 'Please click on the following link, or paste this into your browser to complete the process:\n\n' + 'http://' + req.headers.host + '/reset/' + token + '\n\n' + 'If you did not request this, please ignore this email and your password will remain unchanged.\n'
+    };
+      
+    transporter.sendMail(mailOptions, (err, response) => {
+      if(err){
+        console.log(err);
+        res.send({err: "Error sending mail"});
+      } else {
+        console.log("Sent");
+        res.send("OK");
+      }
+    });
+  })
+});
+
+app.get('/reset/:token', (req, res)=>{
+  const token = req.params.token;
+  User.findOne(
+    { resetPasswordToken: token, resetPasswordExpires: { $gt: new Date().getTime() } }
+  )
+  .then(user=>{
+    if(user){
+      return res.render('resetpassword', {user: user.username});
+    } else {
+      res.send("Error: Token invalid or Expired");
+      console.log("Token invalid or Expired");
+    }
+  })
+  .catch(err=>{
+    console.log(err);
+    throw err;
+  })
+})
+
+app.post('/changepass', (req, res)=>{
+  User.findOne({username: req.body.username.trim().toLowerCase()})
+  .then(user=>{
+    user.setPassword(req.body.newPass, ()=>{
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpires = undefined;
+      user.save();
+      return res.send("OK");
+    });
+  })
+  .catch(err=>{
+    console.log(err);
+    throw err;
+  })
+  
+})
+
+app.get('/logout',authenticateUser, (req, res)=>{
   req.logOut();
   res.send("OK");
 });

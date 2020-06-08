@@ -65,13 +65,7 @@
 					<% } %>
 
 					<div class="flex-sb-m w-full p-t-3 p-b-32">
-						<div class="contact100-form-checkbox">
-							<input class="input-checkbox100" id="ckb1" type="checkbox" name="remember-me">
-							<label class="label-checkbox100" for="ckb1">
-								<b>Remember me</b>
-							</label>
-						</div>
-
+						
 						<% if(reg) {%>
 							<script>
 								function checkPass() {
@@ -85,8 +79,8 @@
 						<% } %>
 
 						<% if(!reg) { %>
-						<div>
-							<a href="/forgotpass" class="txt1">
+						<div style="margin: auto;">
+							<a href="/forgotpassword" class="txt1">
 								Forgot Password?
 							</a>
 						</div>
@@ -101,13 +95,13 @@
 					</div>
 
 					<div id='errRegd' style="display: none" class="err text-center p-t-10 p-b-10">
-						<div href="/login" class="txt2">
+						<div class="txt2">
 							User Already Registered
 						</div>
 					</div>
 
 					<div id='errLogin' style="display: none" class="err text-center p-t-10 p-b-10">
-						<div href="/login" class="txt2">
+						<div class="txt2">
 							Invalid Credentials
 						</div>
 					</div>
@@ -128,7 +122,7 @@
 						</div>
 						<% } %>
 
-					<div class="login100-form-social flex-c-m">
+					<!-- <div class="login100-form-social flex-c-m">
 						<a href="#" class="login100-form-social-item flex-c-m bg1 m-r-5">
 							<i class="fa fa-facebook-f" aria-hidden="true"></i>
 						</a>
@@ -136,7 +130,7 @@
 						<a href="#" class="login100-form-social-item flex-c-m bg2 m-r-5">
 							<i class="fa fa-twitter" aria-hidden="true"></i>
 						</a>
-					</div>
+					</div> -->
 				</form>
 
 				<div class="login100-more" style="background-image: url('/login/images/bg-01.jpg');">
