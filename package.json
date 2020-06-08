@@ -24,7 +24,7 @@
     "nodemon": "^2.0.4"
   },
   "scripts": {
-    "dev": "nodemon app"
+    "start": "node app.js"
   },
   "author": "K",
   "license": "ISC"
