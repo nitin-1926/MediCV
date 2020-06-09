@@ -501,7 +501,7 @@ app.post('/sendresetlink', (req, res)=>{
 
       let transporter = nodemailer.createTransport({
         service: 'gmail',
-        // port: 587,
+        port: 587,
         auth: {
           user: process.env.EMAIL,
           pass: process.env.PASSWORD
@@ -569,7 +569,7 @@ app.get('/logout',authenticateUser, (req, res)=>{
   res.send("OK");
 });
 
-app.listen(process.env.PORT||PORT, () => {
-  console.log("Server Started on " + process.env.PORT);
+app.listen(process.env.PORT || PORT, () => {
+  console.log("Server Started on " + PORT);
 });
 
