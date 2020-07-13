@@ -1,2 +1,2 @@
 # MediCV
-An online portal to store medical records, and many more things along with import export functionality.
+It's an online portal to store all kinds of medical records, and many more things along with import export functionality.
