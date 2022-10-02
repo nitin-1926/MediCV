@@ -267,8 +267,8 @@ iframe {
   width: 100%;
   display: block;
   font-family: Poppins-Regular;
-  font-size: 30px;
-  color: #333333;
+  font-size: 30px !important;
+  color: #fff !important;
   line-height: 1.2;
   text-align: center;
 }
