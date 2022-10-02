@@ -388,8 +388,8 @@ input.input100 {
 }
 
 .input100:focus + .focus-input100 + .label-input100 {
-  top: 14px;
-  font-size: 13px;
+  top: 14px !important;
+  font-size: 15px !important;
 }
 
 .has-val {
