@@ -2,7 +2,7 @@ body {
 	font-family: 'Poppins', sans-serif;
 	line-height: 20px;
 	color: #999999;
-	font-weight: 300;
+	font-weight: 500;
 	font-size: 16px;
 }
 ol, ul {
@@ -23,7 +23,7 @@ table {
 h1, h2, h3, h4, h5, h6
 {
 	font-family: 'Raleway', sans-serif;
-	font-weight: 600;
+	font-weight: 800;
 	color: #222222;
 }
 a, a:hover, a:focus, a:active{
@@ -37,16 +37,16 @@ a, a:hover, a:focus, a:active{
 h2 {
     line-height: 20px;
     margin: 0;
-    font-size: 28px;
-    font-weight: 700;
+    font-size: 26px;
+    font-weight: 800;
     text-transform: uppercase;
 }
 hr.botm-line {
-    height: 3px;
+    height: 5px;
     width: 60px;
     background: #ffb737;
     position: relative;
-    border: 0;
+    border: 5px solid red;
     margin: 20px 0 20px 0;
 }
 
