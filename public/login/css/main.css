@@ -505,8 +505,8 @@ input.input100 {
 @media (max-width: 992px) {
   .login100-form {
     width: 50%;
-    padding-left: 30px;
-    padding-right: 30px;
+    padding-left: 28px;
+    padding-right: 28px;
   }
 
   .login100-more {
